@@ -1,7 +1,7 @@
 // Installable app that opens fast and still shows the last screen offline.
 // Only same-origin app files are cached. Supabase, Cloudinary and fonts always go straight to the network.
-const VERSION = 'kalimat-v1';
-const SHELL = ['/', '/index.html', '/config.js', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
+const VERSION = 'kalimat-v2';
+const SHELL = ['/', '/index.html', '/config.js', '/manifest.webmanifest', '/admin.webmanifest', '/logo.png', '/favicon-32.png', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/admin-icon-192.png', '/admin-icon-512.png', '/admin-apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {

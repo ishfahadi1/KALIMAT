@@ -1,0 +1,42 @@
+# Netlify: no build step, the repo root is the site.
+[build]
+  publish = "."
+
+# kalimat.co.rw/admin opens the same app straight on the admin screen (installable on its own).
+[[redirects]]
+  from = "/admin"
+  to = "/index.html"
+  status = 200
+
+# Backend source lives in the repo but is not served.
+[[redirects]]
+  from = "/supabase/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Always fetch the app shell fresh so a new push shows up immediately.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/config.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
