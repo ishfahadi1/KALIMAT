@@ -2,10 +2,10 @@
 [build]
   publish = "."
 
-# kalimat.co.rw/admin opens the same app straight on the admin screen (installable on its own).
+# kalimat.co.rw/admin opens the admin app (admin.html). The storefront stays at /.
 [[redirects]]
   from = "/admin"
-  to = "/index.html"
+  to = "/admin.html"
   status = 200
 
 # Backend source lives in the repo but is not served.
@@ -22,7 +22,7 @@
     X-Frame-Options = "SAMEORIGIN"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Always fetch the app shell fresh so a new push shows up immediately.
+# Files that change with each release: always revalidate (a cheap 304 when unchanged).
 [[headers]]
   for = "/sw.js"
   [headers.values]
@@ -35,8 +35,29 @@
   for = "/index.html"
   [headers.values]
     Cache-Control = "no-cache"
-
 [[headers]]
-  for = "/assets/*"
+  for = "/admin.html"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/assets/js/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/assets/css/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/admin.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Images change rarely: cache for 30 days.
+[[headers]]
+  for = "/assets/bg/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"

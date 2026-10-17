@@ -3,8 +3,9 @@
   "name": "KALIMAT Admin",
   "short_name": "Admin",
   "description": "Manage your KALIMAT shop",
+  "lang": "en",
   "start_url": "/admin",
-  "scope": "/",
+  "scope": "/admin",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
@@ -12,7 +13,7 @@
   "icons": [
     { "src": "/admin-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/admin-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/admin-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/admin-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "categories": ["business"]
 }

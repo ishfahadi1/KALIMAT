@@ -1,7 +1,18 @@
-// Installable app that opens fast and still shows the last screen offline.
-// Only same-origin app files are cached. Supabase, Cloudinary and fonts always go straight to the network.
-const VERSION = 'kalimat-v2';
-const SHELL = ['/', '/index.html', '/config.js', '/manifest.webmanifest', '/admin.webmanifest', '/logo.png', '/favicon-32.png', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/admin-icon-192.png', '/admin-icon-512.png', '/admin-apple-touch-icon.png'];
+// KALIMAT service worker.
+// - The storefront (/) is installable and reopens offline from the last good copy.
+// - Admin pages and the backend are NEVER cached and never used as an offline fallback.
+// - Only successful same-origin GET responses are stored, so an error page can't replace a good copy.
+// Bump VERSION whenever the precache list or the caching rules change.
+const VERSION = 'kalimat-v3';
+const SHELL = [
+  '/', '/index.html', '/config.js',
+  '/assets/css/store.css', '/assets/js/kdb.js', '/assets/js/store.js',
+  '/manifest.webmanifest', '/logo-transparent.png',
+  '/favicon.ico', '/favicon-32.png', '/apple-touch-icon.png',
+  '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png'
+];
+// /admin, /admin/..., /admin.html and anything under /supabase: pass straight to the network.
+const PRIVATE = /^\/(admin(\.html)?\/?|admin\/.*|supabase\/.*)$/;
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
@@ -23,18 +34,25 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
-  event.respondWith((async () => {
-    try {
-      const res = await fetch(req);
-      if (res.ok && res.type === 'basic') (await caches.open(VERSION)).put(req, res.clone());
-      return res;
-    } catch (err) {
-      const isPage = req.mode === 'navigate';
-      const hit = await caches.match(req, { ignoreSearch: isPage });
-      if (hit) return hit;
-      if (isPage) { const shell = await caches.match('/index.html'); if (shell) return shell; }
-      return Response.error();
-    }
-  })());
+  if (url.origin !== self.location.origin) return;   // Supabase, Cloudinary, fonts: always network
+  if (PRIVATE.test(url.pathname)) return;             // admin + backend: not intercepted at all
+  event.respondWith(networkFirst(req));
 });
+
+async function networkFirst(req) {
+  const cache = await caches.open(VERSION);
+  try {
+    const res = await fetch(req);
+    if (res.ok && res.type === 'basic') cache.put(req, res.clone()).catch(() => {});
+    return res;
+  } catch (err) {
+    const isPage = req.mode === 'navigate';
+    const hit = await cache.match(req, { ignoreSearch: isPage });
+    if (hit) return hit;
+    if (isPage) {
+      const shell = await cache.match('/index.html');
+      if (shell) return shell;
+    }
+    return Response.error();
+  }
+}
