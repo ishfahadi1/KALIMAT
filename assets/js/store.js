@@ -159,16 +159,23 @@ var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><line
 function put(rel,href,sizes){document.querySelectorAll('link[rel="'+rel+'"]').forEach(function(l){l.remove()});var l=document.createElement("link");l.rel=rel;if(sizes)l.sizes=sizes;l.href=href;document.head.appendChild(l)}
 if(c.favicon)put("icon",c.favicon);else if(c.logo)squareIcon(c.logo,function(u){put("icon",u||"/favicon-32.png")});else put("icon","/favicon-32.png");
 }
-/* ---- Download button next to "Welcome to": stays until the app is installed ---- */
+/* ---- Download button next to "Welcome to": shown until the app is installed ---- */
 var DEFER_PROMPT=null;
 function isStandalone(){return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}
-function dlState(){var b=$("dlb");if(!b)return;b.hidden=isStandalone()||rd("store.installed",false)===true}
+function dlState(){
+  var b=$("dlb");if(!b)return;
+  if(window.__kalInstalled){DEFER_PROMPT=null;wr("store.installed",true)}
+  if(window.__kalPrompt&&!DEFER_PROMPT)DEFER_PROMPT=window.__kalPrompt;
+  // Chrome only offers to install an app that is NOT installed, so an offer overrides an old "installed" flag
+  if(DEFER_PROMPT&&rd("store.installed",false)===true)wr("store.installed",false);
+  b.hidden=isStandalone()||(!DEFER_PROMPT&&rd("store.installed",false)===true);
+}
 function dlClick(){
-  if(DEFER_PROMPT){var e=DEFER_PROMPT;DEFER_PROMPT=null;e.prompt();if(e.userChoice)e.userChoice.then(function(c){if(c&&c.outcome==="accepted")wr("store.installed",true);dlState()});return}
+  if(DEFER_PROMPT){var e=DEFER_PROMPT;DEFER_PROMPT=null;window.__kalPrompt=null;e.prompt();if(e.userChoice)e.userChoice.then(function(c){if(c&&c.outcome==="accepted")wr("store.installed",true);dlState()});return}
   toast(/iPhone|iPad|iPod/.test(navigator.userAgent)?"Tap Share, then 'Add to Home Screen'.":"Open your browser menu and choose 'Install app' or 'Add to Home Screen'.")
 }
-addEventListener("beforeinstallprompt",function(e){e.preventDefault();DEFER_PROMPT=e;wr("store.installed",false);dlState()});
-addEventListener("appinstalled",function(){DEFER_PROMPT=null;wr("store.installed",true);dlState();toast("App installed \u2713")});
+addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__kalPrompt=e;dlState()});
+addEventListener("appinstalled",function(){window.__kalInstalled=1;dlState();toast("App installed \u2713")});
 dlState();
 
 

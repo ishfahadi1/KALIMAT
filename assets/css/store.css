@@ -107,3 +107,4 @@ body{padding-top:73px}html{scroll-padding-top:82px}.hd{gap:12px}
 .dlb{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;border:1px solid var(--a);background:var(--card);color:var(--a);font-size:12px;font-weight:600;line-height:1.4;cursor:pointer}
 .dlb:hover{background:var(--a);color:#fff}
 .dlb[hidden]{display:none}
+@media(max-width:420px){h1{white-space:normal;font-size:clamp(32px,10.4vw,40px)}}

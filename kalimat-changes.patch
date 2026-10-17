@@ -89917,10 +89917,10 @@ LnxYDIFJ1pX4DPj=
 
 diff --git a/assets/css/store.css b/assets/css/store.css
 new file mode 100644
-index 0000000..f3e278f
+index 0000000..9d782ef
 --- /dev/null
 +++ b/assets/css/store.css
-@@ -0,0 +1,109 @@
+@@ -0,0 +1,110 @@
 +/* KALIMAT storefront styles (moved out of index.html, unchanged rules) */
 +:root{--a:#c026d3;--g1:#d946ef;--g2:#7c3aed;--bg:#070b1f;--card:#0e1433;--tx:#f1f3ff;--mu:#9aa3c7;--bd:#1f2850}
 +:root[data-m=light]{--bg:#faf8ff;--card:#fff;--tx:#1a1033;--mu:#6b6485;--bd:#e7e1f5}
@@ -90030,6 +90030,7 @@ index 0000000..f3e278f
 +.dlb{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;border:1px solid var(--a);background:var(--card);color:var(--a);font-size:12px;font-weight:600;line-height:1.4;cursor:pointer}
 +.dlb:hover{background:var(--a);color:#fff}
 +.dlb[hidden]{display:none}
++@media(max-width:420px){h1{white-space:normal;font-size:clamp(32px,10.4vw,40px)}}
 diff --git a/assets/js/kdb.js b/assets/js/kdb.js
 new file mode 100644
 index 0000000..5f3a17b
@@ -90082,10 +90083,10 @@ index 0000000..5f3a17b
 +})();
 diff --git a/assets/js/store.js b/assets/js/store.js
 new file mode 100644
-index 0000000..e6cfdd8
+index 0000000..2b3c820
 --- /dev/null
 +++ b/assets/js/store.js
-@@ -0,0 +1,176 @@
+@@ -0,0 +1,183 @@
 +/* KALIMAT storefront. Loaded with defer after /config.js and /assets/js/kdb.js. */
 +/* product images: smaller Cloudinary renditions, lazy-loaded, fall back to the original file */
 +function sized(u,w){return String(u).replace(/^(https:\/\/res\.cloudinary\.com\/[^\/]+\/image\/upload\/)(?:f_auto,q_auto\/)?/,"$1w_"+w+",c_limit,f_auto,q_auto/")}
@@ -90247,16 +90248,23 @@ index 0000000..e6cfdd8
 +function put(rel,href,sizes){document.querySelectorAll('link[rel="'+rel+'"]').forEach(function(l){l.remove()});var l=document.createElement("link");l.rel=rel;if(sizes)l.sizes=sizes;l.href=href;document.head.appendChild(l)}
 +if(c.favicon)put("icon",c.favicon);else if(c.logo)squareIcon(c.logo,function(u){put("icon",u||"/favicon-32.png")});else put("icon","/favicon-32.png");
 +}
-+/* ---- Download button next to "Welcome to": stays until the app is installed ---- */
++/* ---- Download button next to "Welcome to": shown until the app is installed ---- */
 +var DEFER_PROMPT=null;
 +function isStandalone(){return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}
-+function dlState(){var b=$("dlb");if(!b)return;b.hidden=isStandalone()||rd("store.installed",false)===true}
++function dlState(){
++  var b=$("dlb");if(!b)return;
++  if(window.__kalInstalled){DEFER_PROMPT=null;wr("store.installed",true)}
++  if(window.__kalPrompt&&!DEFER_PROMPT)DEFER_PROMPT=window.__kalPrompt;
++  // Chrome only offers to install an app that is NOT installed, so an offer overrides an old "installed" flag
++  if(DEFER_PROMPT&&rd("store.installed",false)===true)wr("store.installed",false);
++  b.hidden=isStandalone()||(!DEFER_PROMPT&&rd("store.installed",false)===true);
++}
 +function dlClick(){
-+  if(DEFER_PROMPT){var e=DEFER_PROMPT;DEFER_PROMPT=null;e.prompt();if(e.userChoice)e.userChoice.then(function(c){if(c&&c.outcome==="accepted")wr("store.installed",true);dlState()});return}
++  if(DEFER_PROMPT){var e=DEFER_PROMPT;DEFER_PROMPT=null;window.__kalPrompt=null;e.prompt();if(e.userChoice)e.userChoice.then(function(c){if(c&&c.outcome==="accepted")wr("store.installed",true);dlState()});return}
 +  toast(/iPhone|iPad|iPod/.test(navigator.userAgent)?"Tap Share, then 'Add to Home Screen'.":"Open your browser menu and choose 'Install app' or 'Add to Home Screen'.")
 +}
-+addEventListener("beforeinstallprompt",function(e){e.preventDefault();DEFER_PROMPT=e;wr("store.installed",false);dlState()});
-+addEventListener("appinstalled",function(){DEFER_PROMPT=null;wr("store.installed",true);dlState();toast("App installed \u2713")});
++addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__kalPrompt=e;dlState()});
++addEventListener("appinstalled",function(){window.__kalInstalled=1;dlState();toast("App installed \u2713")});
 +dlState();
 +
 +
@@ -92241,10 +92249,10 @@ literal 0
 HcmV?d00001
 
 diff --git a/index.html b/index.html
-index eb1a363..98a1811 100644
+index eb1a363..42712a6 100644
 --- a/index.html
 +++ b/index.html
-@@ -1,157 +1,27 @@
+@@ -1,157 +1,28 @@
  <!doctype html>
  <html lang="en"><head><meta charset="utf-8"/>
  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -92415,6 +92423,7 @@ index eb1a363..98a1811 100644
 +<link rel="stylesheet" href="/assets/css/store.css"/>
 +<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;600;700&family=Lora:wght@400;700&family=Merriweather:wght@400;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Nunito:wght@400;600;700&family=Raleway:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Oswald:wght@400;600&family=Dancing+Script:wght@400;700&family=Lobster&family=DM+Serif+Display&family=Space+Grotesk:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&display=swap" media="print" onload="this.media='all'"/>
 +<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;600;700&family=Lora:wght@400;700&family=Merriweather:wght@400;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Nunito:wght@400;600;700&family=Raleway:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Oswald:wght@400;600&family=Dancing+Script:wght@400;700&family=Lobster&family=DM+Serif+Display&family=Space+Grotesk:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&display=swap"/></noscript>
++<script>addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__kalPrompt=e});addEventListener("appinstalled",function(){window.__kalInstalled=1})</script>
 +<script src="/config.js" defer></script>
 +<script src="/assets/js/kdb.js" defer></script>
 +<script src="/assets/js/store.js" defer></script>
@@ -92423,7 +92432,7 @@ index eb1a363..98a1811 100644
  <header><div class="w hd"><a class="lg" href="#/"><i class="grad" id="lgi">K</i><span id="nm"></span></a>
  <nav class="top"><a href="#/" data-r="home">Home</a><a href="#/shop" data-r="shop" onclick="shopAll()">Shop</a><a href="#/profile" data-r="profile">Profile</a></nav><span class="sp1"></span>
  <button type="button" class="gb" id="lgb" onclick="LGO(this,'lgp','lgs')" aria-label="Language"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button><select class="lgs" id="lgs" aria-label="Language"><option value="en">English</option><option value="rw">Kinyarwanda</option><option value="sw">Kiswahili</option><option value="fr">Français</option></select>
-@@ -159,8 +29,8 @@ window.KDB={rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll
+@@ -159,8 +30,8 @@ window.KDB={rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll
  
  <main class="w">
  <div id="v-home">
@@ -92434,7 +92443,7 @@ index eb1a363..98a1811 100644
  <a href="#/shop" class="btn grad">Shop Now →</a> <a href="#" class="btn out" onclick="vOpen(1);return false">▶ Learn More</a></div>
  <div class="pn"><div class="orb o1"></div><div class="orb o2"></div>
  <div class="kp n l" onclick="location.hash='#/shop'"><i data-i="bag"></i><div><small>Products</small><b id="k1">0</b></div></div>
-@@ -188,7 +58,7 @@ window.KDB={rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll
+@@ -188,7 +59,7 @@ window.KDB={rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll
  <button class="btn grad" style="margin-top:14px" id="pb" onclick="saveProfile()">Create account</button> <button class="btn out" style="margin-top:14px;display:none" id="po" onclick="logout()">Log out</button></div>
  <div id="my"></div></section></div>
  
@@ -92443,7 +92452,7 @@ index eb1a363..98a1811 100644
  </main>
  
  <nav class="tb"><a href="#/" data-r="home"><i data-i="home"></i>Home</a><a href="#/shop" data-r="shop" onclick="shopAll()"><i data-i="bag"></i>Shop</a><a href="#/profile" data-r="profile"><i data-i="user"></i>Profile</a></nav>
-@@ -205,88069 +75,5 @@ window.KDB={rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll
+@@ -205,88069 +76,5 @@ window.KDB={rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll
  <div class="ov" id="pov" onclick="if(event.target==this)this.classList.remove('on')"><div class="dr" id="pdr"></div></div>
  <div class="ov" id="sov" onclick="if(event.target==this)gclose()"><div class="dr" id="sdr"></div></div>
  <div id="hot" aria-hidden="true"></div>
