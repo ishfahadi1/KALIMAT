@@ -40,5 +40,5 @@ function rpc(fn,args){var p=chain.then(function(){return api("/rest/v1/rpc/"+fn,
 if(!ok())console.warn("[kdb] config.js is empty: add SUPABASE_URL, SUPABASE_ANON_KEY and SHOP_ID.");
 var ready=load().then(function(){loaded=true;emit()});
 setInterval(load,20000);document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
-window.KDB={rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll,login:login,rpc:rpc,load:load,ready:ready,session:function(){var s=sess();return s?s.email:null},signOut:function(){setSess(null);load()},get loaded(){return loaded}};
+window.KDB={token:token,rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll,login:login,rpc:rpc,load:load,ready:ready,session:function(){var s=sess();return s?s.email:null},signOut:function(){setSess(null);load()},get loaded(){return loaded}};
 })();

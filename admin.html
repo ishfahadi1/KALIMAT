@@ -4601,6 +4601,7 @@ html.dark [role=listbox],html.dark [role=menu],html.dark [role=dialog]{backgroun
 </style>
 <style>*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}</style><script src="/config.js"></script>
 <script src="/assets/js/kdb.js"></script>
+<script src="/assets/js/push.js"></script>
 <style>
 #abar{position:fixed;top:0;left:0;right:0;height:44px;z-index:100;display:flex;align-items:center;gap:8px;padding:0 14px;background:#0b1020;color:#f1f3ff;border-bottom:1px solid #1f2850;font:600 14px/1 Inter,system-ui,sans-serif}
 #abar .gb{width:34px;height:34px;border-radius:50%;border:1px solid #1f2850;background:#0e1433;display:grid;place-items:center;color:#f1f3ff;cursor:pointer;flex:none}
@@ -42125,8 +42126,32 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
   var getPromotions = promotions.list;
   var savePromotion = promotions.save;
   var deletePromotion = promotions.remove;
+  function ago(iso) {
+    const t = new Date(iso).getTime();
+    if (!t) return "";
+    const m = Math.max(0, Math.round((Date.now() - t) / 6e4));
+    if (m < 1) return "just now";
+    if (m < 60) return m + " min ago";
+    const h = Math.round(m / 60);
+    if (h < 24) return h + " h ago";
+    const d = Math.round(h / 24);
+    return d < 30 ? d + " d ago" : new Date(t).toLocaleDateString();
+  }
+  /** Real events: orders, new customers, low stock. NEW = arrived after the admin last left the app. */
   async function getActivity() {
-    return delay(mockActivity);
+    const seen = window.KPush ? window.KPush.lastSeen() : Date.now();
+    const events = [];
+    orders.all().forEach((o) => events.push({ id: "o" + o.id, kind: "order", at: o.date, text: `New order ${o.number || ""} · ${o.customerName || "Customer"} · ${o.item || ""}`.trim() }));
+    customers.all().forEach((c) => events.push({ id: "c" + c.id, kind: "customer", at: c.joinedAt, text: `New customer: ${c.name || "Customer"}` }));
+    const feed = events.filter((e) => new Date(e.at).getTime()).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 12)
+      .map((e) => ({ id: e.id, kind: e.kind, text: e.text, time: ago(e.at), isNew: new Date(e.at).getTime() > seen }));
+    products.all().filter(isReservedItem).slice(0, 3).forEach((p) => feed.push({ id: "s" + p.id, kind: "stock", text: `Reserved: ${p.name}`, time: "", isNew: false }));
+    if (window.KPush) window.KPush.setBadge(feed.filter((e) => e.isNew).length);
+    return feed;
+  }
+  /** The "Low Stock Alerts" tile has always counted reserved items (stock held by a pending order); the feed uses the same rule. */
+  function isReservedItem(p) {
+    return p.sale === "reserved";
   }
   /** Everything reports, accounting and analytics need in one call. */
   async function getBusinessData() {
@@ -87084,12 +87109,26 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
       })).catch(() => setError("We couldn't load your dashboard."));
     }, []);
     import_react.useEffect(load, [load]);
+    import_react.useEffect(() => {
+      let alive = true, t = 0;
+      const quiet = () => {
+        clearTimeout(t);
+        t = setTimeout(() => {
+          Promise.all([getProducts(), getOrders(), getCustomers(), getActivity()]).then(([products, orders, customers, activity]) => {
+            if (alive) setData({ products, orders, customers, activity });
+          }).catch(() => {});
+        }, 300);
+      };
+      if (window.KDB) window.KDB.on(quiet);
+      window.addEventListener("kal-refresh", quiet);
+      return () => { alive = false; clearTimeout(t); window.removeEventListener("kal-refresh", quiet); };
+    }, []);
     if (error) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ErrorState, {
       message: error,
       onRetry: load
     });
     if (!data) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoadingState, { label: "Loading your shop…" });
-    const lowStock = data.products.filter((p) => p.sale === "reserved").length;
+    const lowStock = data.products.filter(isReservedItem).length;
     const totalSales = data.orders.reduce((sum, o) => sum + o.amount, 0);
     const tiles = [
       {
@@ -87129,8 +87168,8 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
           })]
         }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
           className: "space-y-1",
-          children: data.activity.map((a) => {
-            const Icon = activityIcon[a.kind];
+          children: (data.activity.length ? data.activity : [{ id: "_empty", kind: "empty", text: "Nothing yet", time: "", isNew: false }]).map((a) => {
+            const Icon = activityIcon[a.kind] || Bell;
             return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
               onClick: () => a.kind === "order" ? onJump("business", "Orders") : a.kind === "stock" ? onJump("business", "Products") : onJump("business", "Customers"),
               className: "flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-accent",
@@ -87146,6 +87185,10 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
                   className: "min-w-0 flex-1 truncate text-sm",
                   children: a.text
                 }),
+                a.isNew ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+                  style: { background: "#2f6f12", color: "#fff", borderRadius: "9999px", padding: "1px 7px", fontSize: "10px", fontWeight: 700, letterSpacing: ".03em" },
+                  children: "NEW"
+                }) : null,
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
                   className: "shrink-0 text-xs text-muted-foreground",
                   children: a.time
