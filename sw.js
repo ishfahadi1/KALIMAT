@@ -3,7 +3,7 @@
 // - Admin pages and the backend are NEVER cached and never used as an offline fallback.
 // - Only successful same-origin GET responses are stored, so an error page can't replace a good copy.
 // Bump VERSION whenever the precache list or the caching rules change.
-const VERSION = 'kalimat-v6';
+const VERSION = 'kalimat-v9';
 const SHELL = [
   '/', '/index.html', '/config.js',
   '/assets/css/store.css', '/assets/js/kdb.js', '/assets/js/store.js',
