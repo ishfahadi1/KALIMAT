@@ -108,3 +108,55 @@ body{padding-top:73px}html{scroll-padding-top:82px}.hd{gap:12px}
 .dlb:hover{background:var(--a);color:#fff}
 .dlb[hidden]{display:none}
 @media(max-width:420px){h1{white-space:normal;font-size:clamp(32px,10.4vw,40px)}}
+
+
+/* ===== Hero background: chosen by the owner in Admin > Theme (data-hb on <html>) ===== */
+.dec>*{position:absolute;inset:0}
+.hbg{display:none;border-radius:inherit}
+:root[data-hb=blossom] .b-blossom,:root[data-hb=butterfly] .b-butterfly,:root[data-hb=geometry] .b-geometry,:root[data-hb=aurora] .b-aurora{display:block}
+:root[data-hb]:not([data-hb=stars]) .hs-stars{display:none}
+:root[data-hb]:not([data-hb=stars]) .dec{overflow:hidden;border-radius:28px}
+:root[data-hb]:not([data-hb=stars]) .hero:before{display:none}
+:root[data-hb]:not([data-hb=stars]) .hero{padding-left:26px;padding-right:26px}
+.hbg:before{content:"";position:absolute;inset:-60px;background-repeat:repeat;background-size:180px 180px;animation:hbd 70s linear infinite}
+.hbg:after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px color-mix(in srgb,#fff 40%,transparent)}
+@keyframes hbd{to{transform:translate(180px,180px)}}
+/* girly: blossom (rose) + butterfly (orchid) — deep plum in dark mode, pastel in light mode */
+.b-blossom{background:radial-gradient(60% 70% at 85% 20%,#ff5fa266,transparent),linear-gradient(135deg,#3a0d2c,#6b1650 60%,#4a1038)}
+.b-blossom:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Ccircle cx='40.0' cy='35.0' r='7.0' fill='%23ffffff99'/%3E%3Ccircle cx='48.6' cy='41.2' r='7.0' fill='%23ffffff99'/%3E%3Ccircle cx='45.3' cy='51.3' r='7.0' fill='%23ffffff99'/%3E%3Ccircle cx='34.7' cy='51.3' r='7.0' fill='%23ffffff99'/%3E%3Ccircle cx='31.4' cy='41.2' r='7.0' fill='%23ffffff99'/%3E%3Ccircle cx='40' cy='44' r='5.0' fill='%23ffb3d1cc'/%3E%3Ccircle cx='135.0' cy='108.0' r='9.4' fill='%23ffffff80'/%3E%3Ccircle cx='146.4' cy='116.3' r='9.4' fill='%23ffffff80'/%3E%3Ccircle cx='142.1' cy='129.7' r='9.4' fill='%23ffffff80'/%3E%3Ccircle cx='127.9' cy='129.7' r='9.4' fill='%23ffffff80'/%3E%3Ccircle cx='123.6' cy='116.3' r='9.4' fill='%23ffffff80'/%3E%3Ccircle cx='135' cy='120' r='6.6' fill='%23ff8fbfb3'/%3E%3Ccircle cx='150.0' cy='24.0' r='4.7' fill='%23ff9ec7a6'/%3E%3Ccircle cx='155.7' cy='28.1' r='4.7' fill='%23ff9ec7a6'/%3E%3Ccircle cx='153.5' cy='34.9' r='4.7' fill='%23ff9ec7a6'/%3E%3Ccircle cx='146.5' cy='34.9' r='4.7' fill='%23ff9ec7a6'/%3E%3Ccircle cx='144.3' cy='28.1' r='4.7' fill='%23ff9ec7a6'/%3E%3Ccircle cx='150' cy='30' r='3.3' fill='%23ffffffcc'/%3E%3Ccircle cx='22.0' cy='134.0' r='4.7' fill='%23ffffff99'/%3E%3Ccircle cx='27.7' cy='138.1' r='4.7' fill='%23ffffff99'/%3E%3Ccircle cx='25.5' cy='144.9' r='4.7' fill='%23ffffff99'/%3E%3Ccircle cx='18.5' cy='144.9' r='4.7' fill='%23ffffff99'/%3E%3Ccircle cx='16.3' cy='138.1' r='4.7' fill='%23ffffff99'/%3E%3Ccircle cx='22' cy='140' r='3.3' fill='%23ff9ec7b3'/%3E%3C/svg%3E");opacity:.3}
+.b-butterfly{background:radial-gradient(60% 70% at 20% 85%,#f27dd466,transparent),linear-gradient(135deg,#34104a,#6a1f78 60%,#4a1860)}
+.b-butterfly:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg transform='translate(40 40) rotate(-15) scale(0.9)'%3E%3Cellipse cx='-11' cy='-7' rx='11' ry='8' fill='%23ffffffa6' transform='rotate(-25 -11 -7)'/%3E%3Cellipse cx='11' cy='-7' rx='11' ry='8' fill='%23ffffffa6' transform='rotate(25 11 -7)'/%3E%3Cellipse cx='-8' cy='8' rx='7' ry='5' fill='%23f0a6ffcc' transform='rotate(25 -8 8)'/%3E%3Cellipse cx='8' cy='8' rx='7' ry='5' fill='%23f0a6ffcc' transform='rotate(-25 8 8)'/%3E%3Crect x='-1.5' y='-10' width='3' height='22' rx='1.5' fill='%23f0a6ffcc'/%3E%3C/g%3E%3Cg transform='translate(130 95) rotate(18) scale(1.2)'%3E%3Cellipse cx='-11' cy='-7' rx='11' ry='8' fill='%23ff9ed8a6' transform='rotate(-25 -11 -7)'/%3E%3Cellipse cx='11' cy='-7' rx='11' ry='8' fill='%23ff9ed8a6' transform='rotate(25 11 -7)'/%3E%3Cellipse cx='-8' cy='8' rx='7' ry='5' fill='%23ffffffd9' transform='rotate(25 -8 8)'/%3E%3Cellipse cx='8' cy='8' rx='7' ry='5' fill='%23ffffffd9' transform='rotate(-25 8 8)'/%3E%3Crect x='-1.5' y='-10' width='3' height='22' rx='1.5' fill='%23ffffffd9'/%3E%3C/g%3E%3Cg transform='translate(60 150) rotate(-8) scale(0.7)'%3E%3Cellipse cx='-11' cy='-7' rx='11' ry='8' fill='%23c9a2ff99' transform='rotate(-25 -11 -7)'/%3E%3Cellipse cx='11' cy='-7' rx='11' ry='8' fill='%23c9a2ff99' transform='rotate(25 11 -7)'/%3E%3Cellipse cx='-8' cy='8' rx='7' ry='5' fill='%23ffffffcc' transform='rotate(25 -8 8)'/%3E%3Cellipse cx='8' cy='8' rx='7' ry='5' fill='%23ffffffcc' transform='rotate(-25 8 8)'/%3E%3Crect x='-1.5' y='-10' width='3' height='22' rx='1.5' fill='%23ffffffcc'/%3E%3C/g%3E%3Cg transform='translate(160 25) rotate(25) scale(0.6)'%3E%3Cellipse cx='-11' cy='-7' rx='11' ry='8' fill='%23ffffff99' transform='rotate(-25 -11 -7)'/%3E%3Cellipse cx='11' cy='-7' rx='11' ry='8' fill='%23ffffff99' transform='rotate(25 11 -7)'/%3E%3Cellipse cx='-8' cy='8' rx='7' ry='5' fill='%23ff9ed8cc' transform='rotate(25 -8 8)'/%3E%3Cellipse cx='8' cy='8' rx='7' ry='5' fill='%23ff9ed8cc' transform='rotate(-25 8 8)'/%3E%3Crect x='-1.5' y='-10' width='3' height='22' rx='1.5' fill='%23ff9ed8cc'/%3E%3C/g%3E%3C/svg%3E");opacity:.32}
+:root[data-m=light] .b-blossom{background:radial-gradient(60% 70% at 85% 20%,#fff5,transparent),linear-gradient(135deg,#ffe3ef,#ffbfd8 60%,#ffd7e8)}
+:root[data-m=light] .b-butterfly{background:radial-gradient(60% 70% at 20% 85%,#fff6,transparent),linear-gradient(135deg,#ffe0f6,#f3b6ee 60%,#e4c7ff)}
+:root[data-m=light] .b-blossom:before,:root[data-m=light] .b-butterfly:before{opacity:1}
+/* serious: geometry (fine grid) + aurora (soft mesh) — built from the shop's own colours */
+.b-geometry{background:linear-gradient(135deg,color-mix(in srgb,var(--g2) 38%,var(--bg)),color-mix(in srgb,var(--g1) 20%,var(--bg)) 70%,var(--bg))}
+.b-geometry:before{inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M0 60H60M60 0V60' stroke='%23ffffff' stroke-opacity='.5' stroke-width='1' fill='none'/%3E%3C/svg%3E");background-size:60px 60px;opacity:.16;animation:none;-webkit-mask-image:linear-gradient(135deg,#000,transparent 85%);mask-image:linear-gradient(135deg,#000,transparent 85%)}
+.b-geometry:after{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--g2) 40%,transparent)}
+.b-aurora{background:radial-gradient(55% 60% at 12% 18%,color-mix(in srgb,var(--g1) 42%,transparent),transparent),radial-gradient(60% 65% at 88% 80%,color-mix(in srgb,var(--g2) 46%,transparent),transparent),color-mix(in srgb,var(--card) 92%,var(--g2))}
+.b-aurora:before{display:none}
+:root[data-m=light] .b-geometry{background:linear-gradient(135deg,color-mix(in srgb,var(--g2) 22%,#fff),color-mix(in srgb,var(--g1) 12%,#fff) 70%,#fff)}
+:root[data-m=light] .b-geometry:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M0 60H60M60 0V60' stroke='%23334155' stroke-opacity='.5' stroke-width='1' fill='none'/%3E%3C/svg%3E");opacity:.12}
+:root[data-m=light] .b-aurora{background:radial-gradient(55% 60% at 12% 18%,color-mix(in srgb,var(--g1) 30%,transparent),transparent),radial-gradient(60% 65% at 88% 80%,color-mix(in srgb,var(--g2) 32%,transparent),transparent),#fff}
+/* readable text on the non-star backgrounds */
+:root[data-hb]:not([data-hb=stars]) .hero h1,:root[data-hb]:not([data-hb=stars]) .hero .gt{text-shadow:none;filter:none}
+:root[data-hb]:not([data-hb=stars]) .hero p{text-shadow:none}
+:root[data-hb=blossom][data-m=light] .hero p,:root[data-hb=butterfly][data-m=light] .hero p{color:color-mix(in srgb,var(--tx) 82%,transparent)}
+:root[data-hb=blossom]:not([data-m=light]) .hero p,:root[data-hb=butterfly]:not([data-m=light]) .hero p{color:#f3e6ff}
+:root[data-hb]:not([data-hb=stars]) .hero .chip,:root[data-hb]:not([data-hb=stars]) .hero .dlb,:root[data-hb]:not([data-hb=stars]) .hero .btn.out{background:color-mix(in srgb,var(--card) 74%,transparent);backdrop-filter:blur(6px)}
+@media(prefers-reduced-motion:reduce){.hbg:before{animation:none}}
+/* ===== Phone: long words (Kiswahili / French) must fit the screen ===== */
+@media(max-width:760px){
+:root[data-hb]:not([data-hb=stars]) .hero{padding:26px 18px 20px}
+h1{white-space:normal;overflow-wrap:break-word;hyphens:auto;font-size:clamp(30px,10.5vw,46px);line-height:1.08}
+html[lang=sw] h1{font-size:clamp(26px,8.6vw,40px)}
+html[lang=fr] h1{font-size:clamp(28px,9.4vw,42px)}
+.hero p{overflow-wrap:break-word}
+.htx .btn{margin:0 6px 8px 0;padding:11px 16px}
+html[lang=sw] .htx .btn{padding:10px 14px;font-size:14px}
+.kp{min-width:0}.kp>div{min-width:0}.kp small,.kp b{overflow-wrap:anywhere}
+html[lang=sw] .kp small{font-size:10.5px}html[lang=sw] .kp b{font-size:12px}html[lang=sw] .kp.n b{font-size:19px}
+html[lang=sw] .tb a{font-size:10.5px}
+html[lang=sw] .sec>h2,html[lang=sw] h2{font-size:19px;overflow-wrap:break-word}
+.chip{max-width:100%}
+}

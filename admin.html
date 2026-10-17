@@ -86431,6 +86431,20 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
               })]
             })]
           }),
+          import_react.createElement("div", null, import_react.createElement(Label$2, { className: "mb-2 block" }, "Home page background"),
+            import_react.createElement("div", { className: "grid grid-cols-2 gap-2 sm:grid-cols-3" }, [
+              ["stars", "Stars", "Classic", "linear-gradient(135deg,#7c3aed,#d946ef)"],
+              ["blossom", "Blossom", "Girly", "linear-gradient(135deg,#ffbfd8,#ff8fbf)"],
+              ["butterfly", "Butterflies", "Girly", "linear-gradient(135deg,#e4c7ff,#f3b6ee)"],
+              ["geometry", "Geometry", "Serious", "linear-gradient(135deg,#1e293b,#475569)"],
+              ["aurora", "Aurora", "Serious", "linear-gradient(135deg,#0f172a,#1d4ed8 55%,#0ea5e9)"]
+            ].map((b) => import_react.createElement("button", {
+              key: b[0], type: "button",
+              "aria-label": "Use " + b[1] + " background",
+              onClick: () => setTheme({ heroBg: b[0] }),
+              className: "h-16 rounded-xl border-2 p-2 text-left text-[11px] font-semibold text-white transition-transform hover:scale-[1.03] " + ((theme.heroBg || "stars") === b[0] ? "border-foreground" : "border-transparent"),
+              style: { background: b[3], color: b[0] === "blossom" || b[0] === "butterfly" ? "#4a1038" : "#fff" }
+            }, b[1], import_react.createElement("div", { className: "text-[9px] font-normal opacity-80" }, b[2]))))),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
             onClick: async () => {
               await persistConfig();
