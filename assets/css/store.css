@@ -113,8 +113,7 @@ body{padding-top:73px}html{scroll-padding-top:82px}.hd{gap:12px}
 /* ===== Hero background: chosen by the owner in Admin > Theme (data-hb on <html>) ===== */
 .dec>*{position:absolute;inset:0}
 .hbg{display:none;border-radius:inherit}
-:root[data-hb=blossom] .b-blossom,:root[data-hb=butterfly] .b-butterfly,:root[data-hb=geometry] .b-geometry,:root[data-hb=aurora] .b-aurora{display:block}
-:root[data-hb]:not([data-hb=stars]) .hs-stars{display:none}
+:root[data-hb=blossom] .b-blossom,:root[data-hb=butterfly] .b-butterfly,:root[data-hb=geometry] .b-geometry,:root[data-hb=aurora] .b-aurora,:root[data-hb=mist] .b-mist,:root[data-hb=cream] .b-cream,:root[data-hb=sky] .b-sky,:root[data-hb=mint] .b-mint,:root[data-hb=haze] .b-haze,:root[data-hb=pearl] .b-pearl{display:block}
 :root[data-hb]:not([data-hb=stars]) .dec{overflow:hidden;border-radius:28px}
 :root[data-hb]:not([data-hb=stars]) .hero:before{display:none}
 :root[data-hb]:not([data-hb=stars]) .hero{padding-left:26px;padding-right:26px}
@@ -138,7 +137,7 @@ body{padding-top:73px}html{scroll-padding-top:82px}.hd{gap:12px}
 :root[data-m=light] .b-geometry{background:linear-gradient(135deg,color-mix(in srgb,var(--g2) 22%,#fff),color-mix(in srgb,var(--g1) 12%,#fff) 70%,#fff)}
 :root[data-m=light] .b-geometry:before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M0 60H60M60 0V60' stroke='%23334155' stroke-opacity='.5' stroke-width='1' fill='none'/%3E%3C/svg%3E");opacity:.12}
 :root[data-m=light] .b-aurora{background:radial-gradient(55% 60% at 12% 18%,color-mix(in srgb,var(--g1) 30%,transparent),transparent),radial-gradient(60% 65% at 88% 80%,color-mix(in srgb,var(--g2) 32%,transparent),transparent),#fff}
-/* readable text on the non-star backgrounds */
+/* readable text on all backgrounds */
 :root[data-hb]:not([data-hb=stars]) .hero h1,:root[data-hb]:not([data-hb=stars]) .hero .gt{text-shadow:none;filter:none}
 :root[data-hb]:not([data-hb=stars]) .hero p{text-shadow:none}
 :root[data-hb=blossom][data-m=light] .hero p,:root[data-hb=butterfly][data-m=light] .hero p{color:color-mix(in srgb,var(--tx) 82%,transparent)}
@@ -160,3 +159,24 @@ html[lang=sw] .tb a{font-size:10.5px}
 html[lang=sw] .sec>h2,html[lang=sw] h2{font-size:19px;overflow-wrap:break-word}
 .chip{max-width:100%}
 }
+
+/* very soft calm backgrounds */
+.b-mist{background:radial-gradient(50% 60% at 15% 20%,#3b2f6e55,transparent),radial-gradient(55% 65% at 88% 25%,#2a4a7a44,transparent),radial-gradient(60% 70% at 55% 105%,#4a2f6e44,transparent),#12102a}
+:root[data-m=light] .b-mist{background:radial-gradient(50% 60% at 15% 20%,#e6defc,transparent),radial-gradient(55% 65% at 88% 25%,#d5e6ff,transparent),radial-gradient(60% 70% at 55% 105%,#f3e1ff,transparent),#faf8ff}
+.b-mist:before{display:none}
+.b-cream{background:radial-gradient(50% 60% at 15% 20%,#6b4a2a44,transparent),radial-gradient(55% 65% at 88% 25%,#6b5a2a33,transparent),radial-gradient(60% 70% at 55% 105%,#6b2f3a33,transparent),#1f1612}
+:root[data-m=light] .b-cream{background:radial-gradient(50% 60% at 15% 20%,#ffe9d2,transparent),radial-gradient(55% 65% at 88% 25%,#fff3d6,transparent),radial-gradient(60% 70% at 55% 105%,#ffdfe0,transparent),#fffaf3}
+.b-cream:before{display:none}
+.b-sky{background:radial-gradient(50% 60% at 15% 20%,#1f4a7a55,transparent),radial-gradient(55% 65% at 88% 25%,#1f5a7a44,transparent),radial-gradient(60% 70% at 55% 105%,#2f3f7a44,transparent),#0d1626}
+:root[data-m=light] .b-sky{background:radial-gradient(50% 60% at 15% 20%,#d4ebff,transparent),radial-gradient(55% 65% at 88% 25%,#e2f3ff,transparent),radial-gradient(60% 70% at 55% 105%,#dcdfff,transparent),#f7fbff}
+.b-sky:before{display:none}
+.b-mint{background:radial-gradient(50% 60% at 15% 20%,#1f6b4a44,transparent),radial-gradient(55% 65% at 88% 25%,#3a6b2a33,transparent),radial-gradient(60% 70% at 55% 105%,#1f5a6b44,transparent),#0d1a16}
+:root[data-m=light] .b-mint{background:radial-gradient(50% 60% at 15% 20%,#d6f5e6,transparent),radial-gradient(55% 65% at 88% 25%,#e6f8dc,transparent),radial-gradient(60% 70% at 55% 105%,#d3f1f2,transparent),#f6fcf8}
+.b-mint:before{display:none}
+.b-haze{background:radial-gradient(50% 60% at 15% 20%,#6b2f4a55,transparent),radial-gradient(55% 65% at 88% 25%,#4a2f6b44,transparent),radial-gradient(60% 70% at 55% 105%,#6b3f2f33,transparent),#1c101a}
+:root[data-m=light] .b-haze{background:radial-gradient(50% 60% at 15% 20%,#ffdbea,transparent),radial-gradient(55% 65% at 88% 25%,#e8dbff,transparent),radial-gradient(60% 70% at 55% 105%,#ffe6d9,transparent),#fff8fb}
+.b-haze:before{display:none}
+.b-pearl{background:radial-gradient(50% 60% at 15% 20%,#4a463e44,transparent),radial-gradient(55% 65% at 88% 25%,#3e465033,transparent),radial-gradient(60% 70% at 55% 105%,#4a403633,transparent),#141414}
+:root[data-m=light] .b-pearl{background:radial-gradient(50% 60% at 15% 20%,#ece8e1,transparent),radial-gradient(55% 65% at 88% 25%,#e4e9ee,transparent),radial-gradient(60% 70% at 55% 105%,#f2ece4,transparent),#fbfaf8}
+.b-pearl:before{display:none}
+:root[data-m=light] :is(.b-mist,.b-cream,.b-sky,.b-mint,.b-haze,.b-pearl):after{box-shadow:inset 0 0 0 1px #0000000d}
