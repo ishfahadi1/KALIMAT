@@ -6,6 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="KALIMAT Admin"/>
+<script>addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__kalPrompt=e});addEventListener("appinstalled",function(){window.__kalInstalled=1})</script>
 <title>Admin Dashboard</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"/>
 <style>
@@ -4601,18 +4602,21 @@ html.dark [role=listbox],html.dark [role=menu],html.dark [role=dialog]{backgroun
 </style>
 <style>*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}</style><script src="/config.js"></script>
 <script src="/assets/js/kdb.js"></script>
+<script src="/assets/js/pwa.js"></script>
 <script src="/assets/js/push.js"></script>
 <style>
 #abar{position:fixed;top:0;left:0;right:0;height:44px;z-index:100;display:flex;align-items:center;gap:8px;padding:0 14px;background:#0b1020;color:#f1f3ff;border-bottom:1px solid #1f2850;font:600 14px/1 Inter,system-ui,sans-serif}
 #abar .gb{width:34px;height:34px;border-radius:50%;border:1px solid #1f2850;background:#0e1433;display:grid;place-items:center;color:#f1f3ff;cursor:pointer;flex:none}
 #abar .gb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+#abar .gb[hidden]{display:none}
+@media(max-width:420px){#abar{gap:5px;padding:0 8px}#abar select{max-width:92px;padding:6px 4px}#abar .back{padding:6px 8px}}
 #abar select{background:#0e1433;color:#f1f3ff;border:1px solid #1f2850;border-radius:10px;padding:6px 8px;font:inherit;font-size:12px;max-width:130px}
 #abar .back{padding:6px 12px;border:1px solid #1f2850;border-radius:10px;color:#f1f3ff;font-weight:600;font-size:12px;white-space:nowrap}
 .lgp{position:fixed;top:52px;right:14px;z-index:120;display:none;flex-direction:column;gap:4px;padding:8px;background:#0e1433;border:1px solid #1f2850;border-radius:12px}
 .lgp.on{display:flex}.lgp button{padding:6px 12px;border-radius:8px;text-align:left;color:#f1f3ff;background:none;border:0;cursor:pointer;font:inherit}.lgp button.on{background:#7c3aed;color:#fff}
 body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.min-h-screen{min-height:calc(100vh - 44px)!important}
 </style>
-<body><div id="abar"><b>Admin</b><span style="flex:1"></span><button type="button" class="gb" id="alb" aria-label="Admin language" onclick="LGO(this,'lgp2','alg')"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button><select id="alg" aria-label="Admin language"><option value="en">English</option><option value="rw">Kinyarwanda</option><option value="sw">Kiswahili</option><option value="fr">Français</option></select><a class="back" href="/">← Back to store</a></div><div class="lgp" id="lgp2"></div><div id="root"></div>
+<body><div id="abar"><b>Admin</b><span style="flex:1"></span><button type="button" class="gb" id="ainst" aria-label="Install the admin app" title="Install the admin app" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button><button type="button" class="gb" id="alb" aria-label="Admin language" onclick="LGO(this,'lgp2','alg')"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button><select id="alg" aria-label="Admin language"><option value="en">English</option><option value="rw">Kinyarwanda</option><option value="sw">Kiswahili</option><option value="fr">Français</option></select><a class="back" href="/">← Back to store</a></div><div class="lgp" id="lgp2"></div><div id="root"></div>
 <script>
 (function() {
   //#region \0rolldown/runtime.js
@@ -44413,7 +44417,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
         })]
       }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
         className: "flex shrink-0 items-center gap-2",
-        children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThemeToggle, {}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+        children: [/* @__PURE__ */ /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThemeToggle, {}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
           to: "/profile",
           className: "flex items-center gap-2 rounded-xl border border-border/60 bg-card/60 py-1.5 pl-1.5 pr-3 transition-colors hover:bg-accent",
           "aria-label": "Open admin profile",
@@ -83933,7 +83937,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
               label: "Description",
               render: (e) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
                 className: "block max-w-[200px] truncate",
-                children: e.description
+                children: e.description + (expProdIds(e).length ? " · " + expProdIds(e).length + (expProdIds(e).length > 1 ? " products" : " product") : "")
               })
             },
             {
@@ -84019,6 +84023,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
               type: "textarea"
             }
           ],
+          extra: (d, set) => import_react.createElement(ProductPicker, { products: data.products, value: expProdIds(d), amount: d.amount, onChange: (ids) => set({ productIds: ids, productId: ids[0] || null }) }),
           onSave: async (e) => {
             setData({
               ...data,
@@ -86944,6 +86949,34 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
   //#endregion
 
   //#region src/components/business/MoneyPage.tsx
+  function expProdIds(e) { return Array.isArray(e.productIds) && e.productIds.length ? e.productIds : e.productId ? [e.productId] : []; }
+  function expProdNote(e, products) {
+    const ids = expProdIds(e);
+    if (!ids.length) return "";
+    const names = ids.map((id) => (products.find((x) => x.id === id) || {}).name).filter(Boolean);
+    if (!names.length) return " · for a product";
+    return " · for " + (names.length > 2 ? names.slice(0, 2).join(", ") + " +" + (names.length - 2) + " more" : names.join(", "));
+  }
+  function ProductPicker({ products, value, onChange, amount }) {
+    const h = import_react.createElement;
+    const [q, setQ] = import_react.useState("");
+    const ids = Array.isArray(value) ? value : [];
+    const all = products || [];
+    const list = all.filter((p) => !q.trim() || String(p.name).toLowerCase().includes(q.trim().toLowerCase()));
+    const toggle = (id) => onChange(ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
+    const sel = () => onChange([...new Set([...ids, ...list.map((p) => p.id)])]);
+    const bs = { fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 8, border: "1px solid rgba(128,128,128,.4)", background: "transparent", color: "inherit", cursor: "pointer" };
+    const amt = Number(amount) || 0;
+    const hint = ids.length === 0 ? "No product selected: this is a general shop cost." : ids.length > 1 && amt > 0 ? "Shared equally: about " + Math.round(amt / ids.length).toLocaleString() + " for each of the " + ids.length + " products." : ids.length + " product selected.";
+    return h("div", { style: { display: "grid", gap: 8, width: "100%" } },
+      h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" } },
+        h("span", { style: { fontSize: 14, fontWeight: 600 } }, "Related products (optional)" + (ids.length ? " · " + ids.length : "")),
+        h("span", { style: { display: "flex", gap: 6 } }, h("button", { type: "button", onClick: sel, style: bs }, q.trim() ? "Select shown" : "Select all"), h("button", { type: "button", onClick: () => onChange([]), style: bs }, "Clear"))),
+      all.length > 6 ? h("input", { value: q, onChange: (e) => setQ(e.target.value), placeholder: "Search products…", "aria-label": "Search products", style: { height: 38, borderRadius: 10, border: "1px solid rgba(128,128,128,.4)", background: "transparent", color: "inherit", padding: "0 10px", fontSize: 14 } }) : null,
+      h("div", { style: { maxHeight: 176, overflowY: "auto", border: "1px solid rgba(128,128,128,.35)", borderRadius: 12, padding: 4 } },
+        list.length ? list.map((p) => { const on = ids.includes(p.id); return h("label", { key: p.id, style: { display: "flex", alignItems: "center", gap: 10, padding: "8px 8px", borderRadius: 8, cursor: "pointer", fontSize: 14, background: on ? "rgba(128,128,128,.16)" : "transparent" } }, h("input", { type: "checkbox", checked: on, onChange: () => toggle(p.id), style: { width: 18, height: 18, accentColor: "var(--brand, #5b9e22)", flexShrink: 0 } }), h("span", { style: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, p.name)); }) : h("p", { style: { padding: 10, fontSize: 13, opacity: .7 } }, all.length ? "No product matches." : "No products yet.")),
+      h("p", { style: { fontSize: 12, opacity: .7, margin: 0 } }, hint));
+  }
   function MoneyPage() {
     const h = import_react.createElement;
     const money = useMoney();
@@ -86951,7 +86984,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     const [per, setPer] = import_react.useState("month");
     const [what, setWhat] = import_react.useState("");
     const [amt, setAmt] = import_react.useState("");
-    const [prod, setProd] = import_react.useState("");
+    const [prod, setProd] = import_react.useState([]);
     const [cf, setCf] = import_react.useState("");
     const [ct, setCt] = import_react.useState("");
     if (error) return h(ErrorState, { message: error, onRetry: reload });
@@ -86963,7 +86996,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     const sales = data.orders.filter((o) => countsAsSale(o) && inRange(o.date, rg[0], rg[1]));
     const by = {};
     sales.forEach((o) => { const p = data.products.find((x) => x.id === o.productId), k = p ? p.name : o.item; by[k] = by[k] || { n: k, q: 0, in: 0, pr: 0 }; by[k].q += o.quantity || 1; by[k].in += o.amount; by[k].pr += o.amount - orderCost(o, data.products); });
-    data.expenses.filter((e) => e.productId && inRange(e.date, rg[0], rg[1])).forEach((e) => { const p = data.products.find((x) => x.id === e.productId); if (!p) return; by[p.name] = by[p.name] || { n: p.name, q: 0, in: 0, pr: 0 }; by[p.name].pr -= e.amount; });
+    data.expenses.filter((e) => expProdIds(e).length && inRange(e.date, rg[0], rg[1])).forEach((e) => { const ps = expProdIds(e).map((id) => data.products.find((x) => x.id === id)).filter(Boolean); ps.forEach((p) => { by[p.name] = by[p.name] || { n: p.name, q: 0, in: 0, pr: 0 }; by[p.name].pr -= e.amount / ps.length; }); });
     const top = Object.values(by).sort((a, b) => b.pr - a.pr).slice(0, 5);
     const bestSold = Object.values(by).filter((t) => t.q > 0).sort((a, b) => b.q - a.q).slice(0, 5);
     const notSold = data.products.filter((p) => (p.sale || (p.stock > 0 ? "available" : "sold")) === "available" && (!by[p.name] || by[p.name].q === 0)).slice(0, 8);
@@ -86973,8 +87006,8 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     const addExp = async () => {
       const a = Number(amt);
       if (!what.trim() || !(a > 0)) return toast.error("Write what it was for and how much");
-      await saveExpense({ id: newId("e"), shopId: currentShopId(), date: T, title: what.trim(), category: "Other", amount: a, notes: "", productId: prod || null });
-      setWhat(""); setAmt(""); setProd(""); reload(); toast.success("Expense saved");
+      await saveExpense({ id: newId("e"), shopId: currentShopId(), date: T, title: what.trim(), category: "Other", amount: a, notes: "", productIds: prod, productId: prod[0] || null });
+      setWhat(""); setAmt(""); setProd([]); reload(); toast.success("Expense saved");
     };
     const per2 = [["today", "Today"], ["week", "This week"], ["month", "This month"], ["year", "This year"], ["all", "Everything"], ["custom", "Choose dates"]];
     return h("section", { className: "space-y-4" },
@@ -86997,8 +87030,8 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
         h("p", { className: "pt-2 font-semibold" }, "Not selling in this time"),
         notSold.length ? notSold.map((p) => h("div", { key: p.id, className: "text-sm" }, p.name)) : h("p", { className: "text-sm text-muted-foreground" }, "Everything available has sold.")),
       h(GlassCard, { className: "space-y-3 p-4" }, h("p", { className: "font-semibold" }, "Write down an expense"),
-        h("div", { className: "flex flex-col gap-2 sm:flex-row" }, h(Input, { value: what, onChange: (e) => setWhat(e.target.value), placeholder: "What was it for? (e.g. Transport)", "aria-label": "What for" }), h(Input, { value: amt, onChange: (e) => setAmt(e.target.value), type: "number", placeholder: "How much?", "aria-label": "Amount" }), h("select", { value: prod, onChange: (e) => setProd(e.target.value), "aria-label": "Product", className: "h-10 rounded-md border border-border bg-background px-2 text-sm" }, h("option", { value: "" }, "For no product (shop cost)"), data.products.map((p) => h("option", { key: p.id, value: p.id }, p.name))), h(Button, { onClick: addExp, className: "shrink-0" }, "Save expense")),
-        exps.length ? exps.map((e) => h("div", { key: e.id, className: "flex items-center justify-between gap-2 border-t border-border/50 pt-2 text-sm" }, h("span", { className: "min-w-0 flex-1 truncate" }, (e.title || e.label || e.description || e.name || e.category) + " · " + String(e.date).slice(0, 10) + (e.productId ? " · for " + ((data.products.find((x) => x.id === e.productId) || {}).name || "a product") : "")), h("b", null, money(e.amount)), h(Button, { variant: "ghost", size: "icon", "aria-label": "Delete expense", onClick: async () => { await deleteExpense(e.id); reload(); } }, h(Trash2, { className: "h-4 w-4 text-destructive", "aria-hidden": true })))) : h("p", { className: "text-sm text-muted-foreground" }, "No expenses in this time.")));
+        h("div", { className: "flex flex-col gap-2 sm:flex-row" }, h(Input, { value: what, onChange: (e) => setWhat(e.target.value), placeholder: "What was it for? (e.g. Transport)", "aria-label": "What for" }), h(Input, { value: amt, onChange: (e) => setAmt(e.target.value), type: "number", placeholder: "How much?", "aria-label": "Amount" })), h(ProductPicker, { products: data.products, value: prod, onChange: setProd, amount: amt }), h(Button, { onClick: addExp, className: "w-full sm:w-auto" }, "Save expense"),
+        exps.length ? exps.map((e) => h("div", { key: e.id, className: "flex items-center justify-between gap-2 border-t border-border/50 pt-2 text-sm" }, h("span", { className: "min-w-0 flex-1 truncate" }, (e.title || e.label || e.description || e.name || e.category) + " · " + String(e.date).slice(0, 10) + expProdNote(e, data.products)), h("b", null, money(e.amount)), h(Button, { variant: "ghost", size: "icon", "aria-label": "Delete expense", onClick: async () => { await deleteExpense(e.id); reload(); } }, h(Trash2, { className: "h-4 w-4 text-destructive", "aria-hidden": true })))) : h("p", { className: "text-sm text-muted-foreground" }, "No expenses in this time.")));
   }
   //#endregion
 

@@ -2,13 +2,14 @@
 // - The storefront (/) is installable and reopens offline from the last good copy.
 // - Admin pages and the backend are NEVER cached and never used as an offline fallback.
 // - Only successful same-origin GET responses are stored, so an error page can't replace a good copy.
-// Bump VERSION whenever the precache list or the caching rules change.
-const VERSION = 'kalimat-v7';
+// Pages and files are fetched network-first with revalidation, so a push to the site shows up on the next open.
+// pwa.js reloads the storefront when a new worker takes over. Bump VERSION whenever the precache list or the caching rules change.
+const VERSION = 'kalimat-v8';
 const SHELL = [
   '/', '/index.html', '/config.js',
   '/assets/css/store.css', '/assets/js/kdb.js', '/assets/js/store.js',
   '/manifest.webmanifest', '/logo-transparent.png',
-  '/assets/js/push.js',
+  '/assets/js/push.js', '/assets/js/pwa.js',
   '/favicon.ico', '/favicon-32.png', '/apple-touch-icon.png',
   '/icon-192.png', '/icon-512.png', '/icon-maskable-512.png'
 ];
@@ -43,7 +44,7 @@ self.addEventListener('fetch', (event) => {
 async function networkFirst(req) {
   const cache = await caches.open(VERSION);
   try {
-    const res = await fetch(req);
+    const res = await fetch(req, { cache: 'no-cache' });   // always revalidate with the server, never a stale browser copy
     if (res.ok && res.type === 'basic') cache.put(req, res.clone()).catch(() => {});
     return res;
   } catch (err) {
@@ -124,5 +125,6 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'skip') self.skipWaiting();
   if (event.data && event.data.type === 'kal-reset') event.waitUntil((async () => { await badge(() => 0); await setBadge(0); })());
 });
