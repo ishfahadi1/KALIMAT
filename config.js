@@ -5,5 +5,6 @@ window.KCFG = {
   CLOUDINARY_CLOUD_NAME: "xezz9csp",
   CLOUDINARY_UPLOAD_PRESET: "kalimat_unsigned", // must exist in Cloudinary as an UNSIGNED preset
   SHOP_ID: "kalimat",
-  ORDER_PREFIX: "KAL"
+  ORDER_PREFIX: "KAL",
+  TIMEZONE: "Africa/Kigali"   // the shop's calendar: reports group orders into days in this time zone
 };
