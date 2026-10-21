@@ -192,3 +192,23 @@ dlState();
 
 /* service worker: storefront only (admin and backend are never cached) */
 /* registration + auto-update live in /assets/js/pwa.js */
+
+/* ---- product image viewer: full image, never cropped or stretched; opens from any product card ---- */
+var ZV={list:[],i:0,name:""};
+function zOpen(pid,idx){var p=prods().filter(function(x){return x.id===pid})[0];if(!p||!p.images||!p.images.length)return;ZV.list=p.images.slice();ZV.i=idx||0;ZV.name=p.name||"";zDraw()}
+function zDraw(){var el=$("zv");
+if(!el){el=document.createElement("div");el.id="zv";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-label","Product image");
+el.innerHTML='<button type="button" class="zx" aria-label="Close">\u2715</button><button type="button" class="zp" aria-label="Previous image">\u2039</button><div class="zs"><img alt="" draggable="false"/></div><button type="button" class="zn" aria-label="Next image">\u203A</button><div class="zc"></div>';
+document.body.appendChild(el);
+el.querySelector(".zx").onclick=zClose;el.querySelector(".zp").onclick=function(){zGo(-1)};el.querySelector(".zn").onclick=function(){zGo(1)};
+el.onclick=function(e){if(e.target===el||e.target.classList.contains("zs"))zClose()};
+var im=el.querySelector("img");im.onclick=function(e){e.stopPropagation();im.classList.toggle("zz")};
+im.onerror=function(){im.style.display="none";el.querySelector(".zc").textContent=(ZV.name||"")+" \u2014 image unavailable"}}
+var u=ZV.list[ZV.i],img=el.querySelector("img");img.style.display="";img.classList.remove("zz");img.alt=ZV.name;img.src=sized(u,1400);
+el.querySelector(".zc").textContent=ZV.name+(ZV.list.length>1?"  \u00B7  "+(ZV.i+1)+" / "+ZV.list.length:"");
+el.querySelector(".zp").style.display=el.querySelector(".zn").style.display=ZV.list.length>1?"":"none";
+el.classList.add("on");document.documentElement.style.overflow="hidden";el.querySelector(".zx").focus()}
+function zGo(d){ZV.i=(ZV.i+d+ZV.list.length)%ZV.list.length;zDraw()}
+function zClose(){var el=$("zv");if(el)el.classList.remove("on");document.documentElement.style.overflow=""}
+document.addEventListener("keydown",function(e){var el=$("zv");if(!el||!el.classList.contains("on"))return;if(e.key==="Escape")zClose();else if(e.key==="ArrowLeft")zGo(-1);else if(e.key==="ArrowRight")zGo(1)});
+document.addEventListener("click",function(e){var im=e.target.closest&&e.target.closest(".pc .im .ph");if(!im)return;var b=im.closest(".pc").querySelector("[data-pid]");if(!b)return;e.preventDefault();zOpen(b.dataset.pid,0)});

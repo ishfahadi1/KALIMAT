@@ -53,6 +53,26 @@ def t_failed_category_save_is_not_reported_as_success(br):
     assert not be.coll('categories'), 'record should not exist'
     assert 'Ghost' not in t, 'unsaved category still on screen'
 
+def _viewer_check(pg, card_index, shape):
+    pg.locator('#ag .pc .im .ph').nth(card_index).click(); pg.wait_for_selector('#zv.on', timeout=4000); pg.wait_for_function("document.querySelector('#zv img').complete && document.querySelector('#zv img').naturalWidth>0", timeout=5000)
+    m = pg.evaluate('''()=>{var i=document.querySelector('#zv img'),r=i.getBoundingClientRect();return {nw:i.naturalWidth,nh:i.naturalHeight,w:r.width,h:r.height,fit:getComputedStyle(i).objectFit,vw:innerWidth,vh:innerHeight,role:document.getElementById('zv').getAttribute('role')}}''')
+    assert m['fit'] == 'contain', f'{shape}: object-fit is {m["fit"]}'
+    assert abs(m['w'] / m['h'] - m['nw'] / m['nh']) < 0.03, f'{shape}: image distorted {m}'
+    assert m['w'] <= m['vw'] + 1 and m['h'] <= m['vh'] + 1, f'{shape}: image larger than the screen {m}'
+    assert m['role'] == 'dialog'
+    return m
+def t_product_image_viewer_shows_full_undistorted_image(br):
+    """Customers can open a product image full-size: contained, undistorted, closable with Esc and the button; portrait and landscape."""
+    for vp in ({'width': 390, 'height': 844}, {'width': 1280, 'height': 800}):
+        c = br.new_context(viewport=vp, service_workers='block'); pg = page(c, Backend()); pg.goto(ORIGIN + '/#/shop'); pg.wait_for_selector('#ag .pc .im .ph', timeout=8000); pg.wait_for_timeout(600)
+        order = pg.evaluate("Array.from(document.querySelectorAll('#ag .pc .nm')).map(e=>e.textContent)")
+        for idx, name in enumerate(order):
+            _viewer_check(pg, idx, name); pg.keyboard.press('Escape'); pg.wait_for_timeout(150); assert pg.evaluate("!document.getElementById('zv').classList.contains('on')"), 'Esc did not close'
+        _viewer_check(pg, order.index('Woven Basket'), 'multi'); pg.get_by_role('button', name='Next image').click(); pg.wait_for_timeout(500)
+        assert '2 / 2' in pg.inner_text('#zv .zc'), 'next image did not advance'
+        pg.get_by_role('button', name='Close').click(); pg.wait_for_timeout(150); assert pg.evaluate("!document.getElementById('zv').classList.contains('on')"), 'close button did not close'
+        assert pg.evaluate("document.documentElement.style.overflow") == '', 'page scroll stays locked'
+        c.close()
 TESTS = [v for k, v in sorted(globals().items()) if k.startswith('t_')]
 if __name__ == '__main__':
     only = os.environ.get('ONLY'); fails = 0

@@ -198,3 +198,17 @@ html[lang=sw] .hero p{font-size:14px}
 /* first visit with no saved theme: wait for the real brand instead of flashing a default one */
 html[data-pending] body{visibility:hidden}
 #hh:empty{display:none}
+
+/* product image viewer */
+.pc .im .ph{cursor:zoom-in}
+#zv{position:fixed;inset:0;z-index:200;background:rgba(8,10,20,.93);display:none;align-items:center;justify-content:center}
+#zv.on{display:flex}
+#zv .zs{position:absolute;inset:60px 0 52px;display:flex;align-items:center;justify-content:center;overflow:auto;touch-action:pan-x pan-y pinch-zoom}
+#zv img{max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in}
+#zv img.zz{max-width:none;max-height:none;width:200%;height:auto;cursor:zoom-out}
+#zv button{position:absolute;z-index:2;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:22px;line-height:1;cursor:pointer}
+#zv button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+#zv .zx{top:max(10px,env(safe-area-inset-top));right:12px}
+#zv .zp,#zv .zn{top:50%;transform:translateY(-50%)}
+#zv .zp{left:10px}#zv .zn{right:10px}
+#zv .zc{position:absolute;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom));text-align:center;color:#fff;font-size:14px;padding:0 64px}

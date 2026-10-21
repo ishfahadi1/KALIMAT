@@ -6,6 +6,11 @@ ROOT = os.environ.get('KALIMAT_ROOT') or os.path.abspath(os.path.join(os.path.di
 CONFIG = json.load(open(os.path.join(os.path.dirname(__file__), 'fixtures', 'config.json')))
 PUBLIC = {'config', 'categories', 'promotions', 'policies', 'businessProfile', 'tutorial'}
 ADMIN_JWT = 'ADMINJWT'
+import io
+from PIL import Image
+def _png(w, h):
+    b = io.BytesIO(); Image.new('RGB', (w, h), (90, 160, 40)).save(b, 'PNG'); return b.getvalue()
+SHAPES = {'portrait': _png(300, 600), 'landscape': _png(600, 300), 'square': _png(400, 400)}
 PNG = bytes.fromhex('89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d4944415478da63f8cfc0f01f0005000201a1b8ac1c0000000049454e44ae426082')
 QR = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
 
@@ -14,8 +19,8 @@ class Backend:
         cfg = json.loads(json.dumps(CONFIG)); cfg['theme'].update(theme or {})
         if headline is not None: cfg['content']['headline'] = headline
         self.rows = {('config', '_'): cfg}; self.log = []; self.config_delay = config_delay; self.fail_writes = fail_writes
-        for i, (n, cat) in enumerate((('Woven Basket', 'Home'), ('Kitenge Bag', 'Fashion'))):
-            self.rows[('products', f'p{i+1}')] = {"id": f'p{i+1}', "name": n, "price": 9000 + i * 6000, "category": cat, "images": ["https://res.cloudinary.com/xezz9csp/image/upload/v1/x.png"], "stock": 1, "sale": "available", "status": "active", "featured": True, "costPrice": 4000, "shopId": "kalimat"}
+        for i, (n, cat, imgs) in enumerate((('Woven Basket', 'Home', ['portrait.png', 'square.png']), ('Kitenge Bag', 'Fashion', ['landscape.png']))):
+            self.rows[('products', f'p{i+1}')] = {"id": f'p{i+1}', "name": n, "price": 9000 + i * 6000, "category": cat, "images": ["https://res.cloudinary.com/xezz9csp/image/upload/v1/" + x for x in imgs], "stock": 1, "sale": "available", "status": "active", "featured": True, "costPrice": 4000, "shopId": "kalimat"}
     def visible(self, admin): return [(c, i, d) for (c, i), d in self.rows.items() if admin or c in PUBLIC]
     def coll(self, c): return [d for (cc, i), d in self.rows.items() if cc == c]
 
@@ -59,7 +64,10 @@ def install(page, be):
             f = ROOT + p
             if os.path.isfile(f): return route.fulfill(status=200, content_type=mimetypes.guess_type(f)[0] or 'text/plain', body=open(f, 'rb').read())
             return route.fulfill(status=404, body='')
-        if 'res.cloudinary.com' in u: return route.fulfill(status=200, content_type='image/png', body=PNG)
+        if 'res.cloudinary.com' in u:
+            for k, v in SHAPES.items():
+                if k in u: return route.fulfill(status=200, content_type='image/png', body=v)
+            return route.fulfill(status=200, content_type='image/png', body=PNG)
         if 'api.cloudinary.com' in u: return route.fulfill(status=200, content_type='application/json', headers={'access-control-allow-origin': '*'}, body=json.dumps({'secure_url': 'https://res.cloudinary.com/xezz9csp/image/upload/v1/up.png'}))
         if 'supabase.co' in u: return sb(route, req)
         return route.fulfill(status=200, content_type='text/css' if 'css' in u else 'text/plain', body='')
