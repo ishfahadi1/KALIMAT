@@ -1,0 +1,9 @@
+# Architecture (as found, verified by reading code and the live database)
+- **Hosting:** static site on Netlify, no build step (`netlify.toml`). `/admin` → `admin.html`. `tests/`, `docs/`, `supabase/`, `package.json` are blocked from public serving.
+- **Pages:** `index.html` (+`assets/css/store.css`, `assets/js/store.js`) = storefront; `admin.html` = compiled React admin (single file, readable bundle); shared `assets/js/kdb.js` (data layer), `pwa.js` (install/update), `push.js`; `sw.js` service worker (network-first, admin never cached); `config.js` (public settings incl. `TIMEZONE`).
+- **Backend:** Supabase project `Kalimat Ltd's Project`. One table `records(shop_id, coll, id, data jsonb)` holds every collection (products, orders, customers, categories, config…). RLS: public reads only `config, categories, promotions, policies, businessProfile, tutorial`; shoppers may insert `orders, customers, customerDemands`; admins (email in `shop_admins`, from the JWT) do everything for their shop. Products reach shoppers only through `public_products()` (no cost fields). `reserve_product()` needs a pending order for that product.
+- **Auth:** admin = authenticator code → Edge Function `kal-admin` → magic-link token → Supabase session. **Customers have no real auth** (OPEN-001).
+- **Images:** data URLs inside any record are uploaded to Cloudinary (unsigned preset) before saving; the URL is stored.
+- **Push:** `push_subscriptions`, trigger `records_push` → Edge Function `kal-push`.
+- **Data flow:** UI → `KDB.wr(coll, wholeList)` → diff vs last server copy → upsert/delete changed rows → resolves only when confirmed; on failure message + reload from server.
+- **Migrations:** `supabase/migrations/001…004`; production has 001, 002, 003 (applied this session), 004 (applied earlier outside the migration history).

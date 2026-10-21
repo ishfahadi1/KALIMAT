@@ -73,6 +73,16 @@ def t_product_image_viewer_shows_full_undistorted_image(br):
         pg.get_by_role('button', name='Close').click(); pg.wait_for_timeout(150); assert pg.evaluate("!document.getElementById('zv').classList.contains('on')"), 'close button did not close'
         assert pg.evaluate("document.documentElement.style.overflow") == '', 'page scroll stays locked'
         c.close()
+def t_shopper_checkout_places_order_and_reserves_product(br):
+    """Neighbouring flow that must never break: an anonymous shopper orders a product; the order is stored, then the product is reserved."""
+    be = Backend(); pg = page(ctx(br), be); pg.goto(ORIGIN + '/#/shop'); pg.wait_for_selector('#ag .pc', timeout=8000); pg.wait_for_timeout(500)
+    pg.evaluate("pickp('p2')"); pg.evaluate("(function(){var f=function(i,v){var e=document.getElementById(i);if(e)e.value=v};f('fn','Test Shopper');f('fp','0788000000');f('fa','Kigali')})()")
+    pg.evaluate("checkout()"); pg.wait_for_timeout(1500)
+    orders = [d for d in be.coll('orders')]; assert orders, f'no order stored; log={be.log}'
+    assert orders[0].get('productId') == 'p2', orders[0]
+    assert any(e[0] == 'rpc' and e[1] == 'reserve_product' for e in be.log), f'reserve_product not called; log={be.log}'
+    order_idx = next(i for i, e in enumerate(be.log) if e[0] == 'write' and e[1] == 'orders'); rpc_idx = next(i for i, e in enumerate(be.log) if e[0] == 'rpc')
+    assert order_idx < rpc_idx, 'the reservation must come AFTER the order is stored (migration 003 requires the order to exist)'
 TESTS = [v for k, v in sorted(globals().items()) if k.startswith('t_')]
 if __name__ == '__main__':
     only = os.environ.get('ONLY'); fails = 0

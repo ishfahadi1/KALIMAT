@@ -4,7 +4,7 @@
 // - Only successful same-origin GET responses are stored, so an error page can't replace a good copy.
 // Pages and files are fetched network-first with revalidation, so a push to the site shows up on the next open.
 // pwa.js reloads the storefront when a new worker takes over. Bump VERSION whenever the precache list or the caching rules change.
-const VERSION = 'kalimat-v8';
+const VERSION = 'kalimat-v9';
 const SHELL = [
   '/', '/index.html', '/config.js',
   '/assets/css/store.css', '/assets/js/kdb.js', '/assets/js/store.js',

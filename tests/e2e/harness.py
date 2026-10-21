@@ -36,7 +36,7 @@ def install(page, be):
             if a == 'login': return H({"token_hash": "th", "email": b['email']}) if b['code'] == '123456' else H({"error": "invalid"}, 401)
         if '/auth/v1/verify' in u: return H({"access_token": ADMIN_JWT, "refresh_token": "r", "expires_in": 3600, "user": {"email": "owner@kalimat.co.rw"}})
         if '/rpc/public_products' in u: return H([{"id": i, "data": {k: v for k, v in d.items() if k != 'costPrice'}} for c, i, d in be.visible(False) if False] + [{"id": i, "data": {k: v for k, v in d.items() if k != 'costPrice'}} for (c, i), d in be.rows.items() if c == 'products'])
-        if '/rpc/' in u: return H(True)
+        if '/rpc/' in u: be.log.append(('rpc', u.split('/rpc/')[1].split('?')[0], req.post_data)); return H(True)
         if '/rest/v1/records' in u:
             if req.method == 'GET':
                 if be.config_delay: time.sleep(be.config_delay)
