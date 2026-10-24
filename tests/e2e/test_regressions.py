@@ -25,11 +25,20 @@ def t_brand_returning_visit(br):
     be = Backend(config_delay=1.2, theme=BLUE); c = ctx(br); pg = page(c, be); pg.goto(ORIGIN + '/'); pg.wait_for_timeout(2500); pg.close()
     pg = page(c, be, True); pg.goto(ORIGIN + '/'); pg.wait_for_timeout(1800); s = pg.evaluate('window.__s'); vis = [x for x in s if x[2] not in ('hidden', 'none') and x[1]]
     assert vis and all(x[1] == '#2563eb' for x in vis), f'first visible frame: {vis[:1]}'
-def t_no_default_slogan(br):
-    """No built-in marketing slogan is ever shown; a configured headline is."""
+def t_slogan_kept_and_headline_override(br):
+    """Owner decision: "Shop Smarter, Live Better" stays as the static hero line; a configured headline replaces it."""
     pg = page(ctx(br), Backend(headline=''), True); pg.goto(ORIGIN + '/'); pg.wait_for_timeout(1800); t = text(pg)
-    assert 'Shop Smarter' not in t and 'Live Better' not in t, 'default slogan visible'
-    be = Backend(headline='Fresh picks'); pg2 = page(ctx(br), be); pg2.goto(ORIGIN + '/'); pg2.wait_for_timeout(1800); assert 'Fresh picks' in text(pg2)
+    assert 'Shop Smarter' in t and 'Live Better' in t, 'slogan missing'
+    pg2 = page(ctx(br), Backend(headline='Fresh picks')); pg2.goto(ORIGIN + '/'); pg2.wait_for_timeout(1800); t2 = text(pg2)
+    assert 'Fresh picks' in t2 and 'Shop Smarter' not in pg2.inner_text('#hh'), 'configured headline should replace the slogan in the hero'
+def t_hero_has_no_floating_shapes_but_keeps_backgrounds(br):
+    """No stars / globe / circles / float animation in the hero; the 10 selectable backgrounds remain and each can be applied."""
+    pg = page(ctx(br), Backend()); pg.goto(ORIGIN + '/'); pg.wait_for_timeout(1500)
+    assert pg.locator('.orb, .sp, .st').count() == 0, 'decorative shapes still in the page'
+    assert pg.evaluate("Array.from(document.querySelectorAll('.hero *')).filter(e=>getComputedStyle(e).animationName!=='none').length") == 0, 'something in the hero still animates'
+    assert pg.locator('.dec .hbg').count() == 10, 'the 10 background options must remain'
+    for o in 'blossom,butterfly,geometry,aurora,mist,cream,sky,mint,haze,pearl'.split(','):
+        pg.evaluate(f"document.documentElement.dataset.hb='{o}'"); assert pg.evaluate(f"getComputedStyle(document.querySelector('.hbg.b-{o}')).display") != 'none', f'{o} not shown when selected'
 def t_no_brand_reset_button(br):
     """There is no Reset control on the Branding screen (it used to wipe the logo and favicon)."""
     assert 'children: "Reset"' not in open(os.path.join(ROOT, 'admin.html'), encoding='utf-8').read(), 'Reset button still in admin code'
