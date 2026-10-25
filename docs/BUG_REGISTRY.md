@@ -1,0 +1,32 @@
+# Bug registry
+Format: symptom → root cause (with evidence) → fix → tests.
+
+## Fixed
+**BUG-001 Admin writes silently dropped (P1).** `kdb.push()` returned early when no admin session existed (expired/refresh failed) — no request, no error — while the cache already showed the record. *Evidence:* unit test failed on old code. *Fix:* admin writes now reject "Please sign in again". `assets/js/kdb.js`. *Test:* `kdb.test.js` BUG-001/001b.
+**BUG-002 "Saved" shown before the database confirmed.** `wr()` returned `undefined`; admin `save/remove` returned immediately. *Fix:* `wr()` returns a promise that resolves only after the backend confirmed; admin services await it. `kdb.js`, `admin.html` (services layer). *Test:* BUG-002.
+**BUG-003 Failed saves invisible and left phantom records.** Errors went to `window.toast`, which does not exist in the admin; the unsaved item stayed on screen. *Fix:* `KDB.onError` → admin `toast.error`; screen rolls back to server truth. *Test:* BUG-003 (unit), `t_failed_category_save_is_not_reported_as_success` (browser).
+**BUG-004 Deletes that did nothing reported as success.** PostgREST returns 204 for a delete that removed 0 rows. *Fix:* delete uses `return=representation` and verifies. *Test:* BUG-004.
+**BUG-005 Silent 1000-row cap.** Loads used `limit=1000`; the API caps at 1000 rows/request. *Latent:* production has 33 rows today. *Fix:* paged loads (records + `public_products`). *Test:* BUG-005/005b.
+**BUG-006 Reports grouped orders by UTC day.** `inRange/today/rangeFromDays` used `toISOString().slice(0,10)`; an order at 01:30 Kigali time fell on the previous day. *Fix:* days computed in `config.js` `TIMEZONE` (Africa/Kigali). *Test:* `reports.test.js` (fails on 900f68c, passes now).
+**BUG-007 Categories/sub-categories were browser-only (the "localStorage-like" symptom).** `CategoriesPage` wrote `window.localStorage` directly; production has zero `categories` rows. Also used a hardcoded default list and ignored database products. *Fix:* stored via the data layer; existing browser categories migrate once; hardcoded defaults removed; double-click guard. *Test:* `t_category_saved_in_database_and_on_other_device`.
+**BUG-008 Logo/favicon "Reset" button.** One click wiped both. *Fix:* removed (palette/presets remain editable). *Test:* `t_no_brand_reset_button`.
+**BUG-009 Old colours flash before the saved brand.** `store.css` + `CFG0` defaulted to magenta/violet and dark mode; `render()` ran before the config loaded. *Fix:* last real theme cached and applied in `<head>` before paint; first-ever visit is held until the config arrives (2.5 s failsafe); defaults can no longer overwrite a remembered/saved theme; fallback palette changed to the brand. *Test:* `t_brand_first_visit`, `t_brand_returning_visit` (old code: 69 magenta frames).
+**BUG-010 Default slogan — OWNER DECISION: KEEP.** The hero/footer line "Shop Smarter, Live Better" is intentional static branding (with the three hero claims). It was removed once in error and restored; a configured headline still replaces it. *Test:* `t_slogan_kept_and_headline_override`.
+**BUG-011 Product images could only be seen cropped.** Cards use `object-fit: cover`; no viewer existed. *Fix:* viewer (contain-fit, tap-zoom, prev/next, Esc, close button, scroll lock, fallback). *Test:* `t_product_image_viewer_…`.
+**BUG-012 Migration 003 not applied in production.** `reserve_product` let anyone mark any product sold. *Fix:* applied to the live database; verified attack paths return false and checkout still works (D).
+
+**BUG-013 Customer accounts (username + phone), shared across devices.** Accounts were a local flag; orders and requests were invisible on any other device (customers cannot read the orders table). *Fix:* migration 005 (applied to production): `customer_login/register/activity/save/answer_demand/guest`; credential = username + phone (last 9 digits); 8 wrong tries lock that phone for 15 minutes; each caller only ever receives their own records; shoppers can no longer insert customer rows; old duplicate rows are merged. Storefront: sign-in box, create account, My Orders / My Requests from the database, accept/decline quotes, checkout "save my details" creates the account first and shows the username. *Verified:* 19 checks on the live database (rolled back) + 5 browser tests. *Known limits (owner accepted "simple, free"):* no SMS/email proof of the phone, so anyone who knows BOTH a customer's username and phone can see that customer's orders; orders placed as a guest are not attached to a later account; profile photo stays on the device.
+**BUG-014 Logout never worked.** `logout()` removed `iduka.<shop>.store.user` but the data layer stores `kal.store.user`, so customers stayed signed in. *Fix + test:* `t_logout_really_logs_out`.
+**BUG-015 Messages cut short.** Each toast timer hid newer messages early; the "your username is…" notice was overwritten by "Order placed". *Fix:* timers cleared; order confirmation carries the username for 9 s.
+**BUG-016 Hero floating circles / globe / stars.** `.orb` blurred circles in the HTML plus dead `.sp/.st` rules and the `fl` float animation (12 CSS rules). *Fix:* removed; the 10 selectable backgrounds kept. *Test:* `t_hero_has_no_floating_shapes_but_keeps_backgrounds`.
+
+## Open
+**OPEN-001 (RESOLVED → BUG-013) Customer login was not authentication.**
+**OPEN-002 Developer role, two-finger-hold entry, authenticator gate.** Not started. Plan: add a `developer` role to the existing `kal-admin` TOTP flow, enforce in RLS/function, run tests against an isolated `shop_id`.
+**OPEN-003 Tutorial video is stored in the admin browser's IndexedDB** — customers on other devices never see it (a YouTube link works). Needs Cloudinary video upload.
+**OPEN-004 (RESOLVED → BUG-013)** customer duplicates: new accounts are unique per username+phone; old duplicate rows are merged in the customer's history.
+**OPEN-005 (RESOLVED by owner)** Hero: the CSS-built backgrounds stay as 10 selectable options (admin → Branding). The floating circles, globe and stars were removed (BUG-016).
+**OPEN-006 "One row" report defect not reproduced.** Production has 1 order and 1 expense. Date logic and paging bugs that could cause it are fixed; per-report data lineage still to document.
+**OPEN-007 Install flows untested on real devices.**
+**OPEN-008 Deployed site unverified.** Also confirm production runs the commit you deploy.
+**OPEN-009 (RESOLVED by owner)** The three hero claims are kept as static, presentable content.

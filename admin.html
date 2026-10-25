@@ -6,6 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="KALIMAT Admin"/>
+<script>addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__kalPrompt=e});addEventListener("appinstalled",function(){window.__kalInstalled=1})</script>
 <title>Admin Dashboard</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"/>
 <style>
@@ -4601,17 +4602,21 @@ html.dark [role=listbox],html.dark [role=menu],html.dark [role=dialog]{backgroun
 </style>
 <style>*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}</style><script src="/config.js"></script>
 <script src="/assets/js/kdb.js"></script>
+<script src="/assets/js/pwa.js"></script>
+<script src="/assets/js/push.js"></script>
 <style>
 #abar{position:fixed;top:0;left:0;right:0;height:44px;z-index:100;display:flex;align-items:center;gap:8px;padding:0 14px;background:#0b1020;color:#f1f3ff;border-bottom:1px solid #1f2850;font:600 14px/1 Inter,system-ui,sans-serif}
 #abar .gb{width:34px;height:34px;border-radius:50%;border:1px solid #1f2850;background:#0e1433;display:grid;place-items:center;color:#f1f3ff;cursor:pointer;flex:none}
 #abar .gb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+#abar .gb[hidden]{display:none}
+@media(max-width:420px){#abar{gap:5px;padding:0 8px}#abar select{max-width:92px;padding:6px 4px}#abar .back{padding:6px 8px}}
 #abar select{background:#0e1433;color:#f1f3ff;border:1px solid #1f2850;border-radius:10px;padding:6px 8px;font:inherit;font-size:12px;max-width:130px}
 #abar .back{padding:6px 12px;border:1px solid #1f2850;border-radius:10px;color:#f1f3ff;font-weight:600;font-size:12px;white-space:nowrap}
 .lgp{position:fixed;top:52px;right:14px;z-index:120;display:none;flex-direction:column;gap:4px;padding:8px;background:#0e1433;border:1px solid #1f2850;border-radius:12px}
 .lgp.on{display:flex}.lgp button{padding:6px 12px;border-radius:8px;text-align:left;color:#f1f3ff;background:none;border:0;cursor:pointer;font:inherit}.lgp button.on{background:#7c3aed;color:#fff}
 body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.min-h-screen{min-height:calc(100vh - 44px)!important}
 </style>
-<body><div id="abar"><b>Admin</b><span style="flex:1"></span><button type="button" class="gb" id="alb" aria-label="Admin language" onclick="LGO(this,'lgp2','alg')"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button><select id="alg" aria-label="Admin language"><option value="en">English</option><option value="rw">Kinyarwanda</option><option value="sw">Kiswahili</option><option value="fr">Français</option></select><a class="back" href="/">← Back to store</a></div><div class="lgp" id="lgp2"></div><div id="root"></div>
+<body><div id="abar"><b>Admin</b><span style="flex:1"></span><button type="button" class="gb" id="ainst" aria-label="Install the admin app" title="Install the admin app" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button><button type="button" class="gb" id="alb" aria-label="Admin language" onclick="LGO(this,'lgp2','alg')"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button><select id="alg" aria-label="Admin language"><option value="en">English</option><option value="rw">Kinyarwanda</option><option value="sw">Kiswahili</option><option value="fr">Français</option></select><a class="back" href="/">← Back to store</a></div><div class="lgp" id="lgp2"></div><div id="root"></div>
 <script>
 (function() {
   //#region \0rolldown/runtime.js
@@ -41749,9 +41754,17 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
   XLSX.version;
   //#endregion
   //#region src/lib/finance.ts
-  var today = () => (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  var BIZ_TZ = (window.parent.KCFG && window.parent.KCFG.TIMEZONE) || "Africa/Kigali";
+  var dayOf = (v) => {
+    if (v instanceof Date || /T|Z$|\d\s\d/.test(String(v))) {
+      const x = new Date(v);
+      if (!isNaN(x)) return new Intl.DateTimeFormat("en-CA", { timeZone: BIZ_TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(x);
+    }
+    return String(v).slice(0, 10);
+  };
+  var today = () => dayOf(/* @__PURE__ */ new Date());
   function inRange(date, from, to) {
-    const d = date.slice(0, 10);
+    const d = dayOf(date);
     if (from && d < from) return false;
     if (to && d > to) return false;
     return true;
@@ -41854,12 +41867,10 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     return out;
   }
   function rangeFromDays(days) {
-    const to = /* @__PURE__ */ new Date();
-    const from = /* @__PURE__ */ new Date();
-    from.setDate(from.getDate() - (days - 1));
+    const now = Date.now();
     return {
-      from: from.toISOString().slice(0, 10),
-      to: to.toISOString().slice(0, 10)
+      from: dayOf(new Date(now - (days - 1) * 864e5)),
+      to: dayOf(new Date(now))
     };
   }
   //#endregion
@@ -41877,7 +41888,11 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
   var currentShopId = () => DEFAULT_SHOP_ID;
   var key = (name) => `iduka.${currentShopId()}.${name}`;
   var newId = (prefix) => `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-  var KP = () => window.parent.KDB;
+  var KP = () => {
+    const k = window.parent.KDB;
+    if (!k.__ui) { k.__ui = 1; k.onError((m) => toast.error(m)); }
+    return k;
+  };
   var nm = (k) => k.replace(/^iduka\.[^.]*\./, "");
   function read(k, fallback) {
     const v = KP().rd(nm(k), void 0);
@@ -41888,7 +41903,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     return v === void 0 ? fallback : v;
   }
   function write(k, value) {
-    KP().wr(nm(k), value);
+    return KP().wr(nm(k), value);
   }
   /**
   * Generic shop-scoped collection backed by localStorage.
@@ -41899,17 +41914,18 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     return {
       all,
       list: () => delay(all()),
-      save: (item) => {
+      save: async (item) => {
+        const it = item.shopId ? item : { ...item, shopId: currentShopId() };
         const list = all();
-        const next = list.some((x) => x.id === item.id) ? list.map((x) => x.id === item.id ? item : x) : [item, ...list];
-        write(key(name), next);
-        return delay(next);
+        const next = list.some((x) => x.id === it.id) ? list.map((x) => x.id === it.id ? it : x) : [it, ...list];
+        await write(key(name), next);
+        return next;
       },
       saveAll: (next) => write(key(name), next),
-      remove: (id) => {
+      remove: async (id) => {
         const next = all().filter((x) => x.id !== id);
-        write(key(name), next);
-        return delay(next);
+        await write(key(name), next);
+        return next;
       }
     };
   }
@@ -42113,8 +42129,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     return delay(read(key("businessProfile"), defaultBusinessProfile));
   }
   async function saveBusinessProfile(p) {
-    write(key("businessProfile"), p);
-    return delay(p);
+    return write(key("businessProfile"), p).then(() => p);
   }
   var getMarketingCampaigns = campaigns.list;
   var saveMarketingCampaign = campaigns.save;
@@ -42125,8 +42140,32 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
   var getPromotions = promotions.list;
   var savePromotion = promotions.save;
   var deletePromotion = promotions.remove;
+  function ago(iso) {
+    const t = new Date(iso).getTime();
+    if (!t) return "";
+    const m = Math.max(0, Math.round((Date.now() - t) / 6e4));
+    if (m < 1) return "just now";
+    if (m < 60) return m + " min ago";
+    const h = Math.round(m / 60);
+    if (h < 24) return h + " h ago";
+    const d = Math.round(h / 24);
+    return d < 30 ? d + " d ago" : new Date(t).toLocaleDateString();
+  }
+  /** Real events: orders, new customers, low stock. NEW = arrived after the admin last left the app. */
   async function getActivity() {
-    return delay(mockActivity);
+    const seen = window.KPush ? window.KPush.lastSeen() : Date.now();
+    const events = [];
+    orders.all().forEach((o) => events.push({ id: "o" + o.id, kind: "order", at: o.date, text: `New order ${o.number || ""} · ${o.customerName || "Customer"} · ${o.item || ""}`.trim() }));
+    customers.all().forEach((c) => events.push({ id: "c" + c.id, kind: "customer", at: c.joinedAt, text: `New customer: ${c.name || "Customer"}` }));
+    const feed = events.filter((e) => new Date(e.at).getTime()).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 12)
+      .map((e) => ({ id: e.id, kind: e.kind, text: e.text, time: ago(e.at), isNew: new Date(e.at).getTime() > seen }));
+    products.all().filter(isReservedItem).slice(0, 3).forEach((p) => feed.push({ id: "s" + p.id, kind: "stock", text: `Reserved: ${p.name}`, time: "", isNew: false }));
+    if (window.KPush) window.KPush.setBadge(feed.filter((e) => e.isNew).length);
+    return feed;
+  }
+  /** The "Low Stock Alerts" tile has always counted reserved items (stock held by a pending order); the feed uses the same rule. */
+  function isReservedItem(p) {
+    return p.sale === "reserved";
   }
   /** Everything reports, accounting and analytics need in one call. */
   async function getBusinessData() {
@@ -42159,15 +42198,13 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     return delay(read(key("config"), defaultConfig));
   }
   async function saveConfig(config) {
-    write(key("config"), config);
-    return delay(config);
+    return write(key("config"), config).then(() => config);
   }
   async function getProfile() {
     return delay(read(key("profile"), defaultProfile));
   }
   async function saveProfile(profile) {
-    write(key("profile"), profile);
-    return delay(profile);
+    return write(key("profile"), profile).then(() => profile);
   }
   /** Admin sign-in: authenticator app (TOTP), verified by the kal-admin Edge Function. */
   async function isEnrolled(email) { return KP().status(email); }
@@ -44388,7 +44425,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
         })]
       }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
         className: "flex shrink-0 items-center gap-2",
-        children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThemeToggle, {}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
+        children: [/* @__PURE__ */ /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThemeToggle, {}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
           to: "/profile",
           className: "flex items-center gap-2 rounded-xl border border-border/60 bg-card/60 py-1.5 pl-1.5 pr-3 transition-colors hover:bg-accent",
           "aria-label": "Open admin profile",
@@ -56259,18 +56296,19 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
   //#region src/components/business/CategoriesPage.tsx
   var catSlug = (n) => "cat_" + String(n).toLowerCase().replace(/[^a-z0-9]+/g, "-");
   function loadCats() {
-    let stored = null;
-    try {
-      const raw = window.localStorage.getItem(key("categories"));
-      if (raw) stored = JSON.parse(raw);
-    } catch {}
-    let prods = [];
-    try {
-      prods = JSON.parse(window.localStorage.getItem(key("products")) || "null") || mockProducts;
-    } catch {
-      prods = mockProducts;
+    const K = window.parent.KDB;
+    let stored = K.rd("categories", null);
+    if (!Array.isArray(stored) || !stored.length) {
+      /* one-time move: categories this browser created before they were stored in the database */
+      let legacy = null;
+      try { legacy = JSON.parse(window.localStorage.getItem(key("categories")) || "null"); } catch {}
+      if (Array.isArray(legacy) && legacy.length) {
+        stored = legacy;
+        K.wr("categories", legacy).then(() => { try { window.localStorage.removeItem(key("categories")); } catch {} }).catch(() => {});
+      }
     }
-    const base = Array.isArray(stored) ? stored : CATEGORIES.map((n) => ({ id: catSlug(n), shopId: currentShopId(), name: n }));
+    const prods = K.rd("products", []);
+    const base = Array.isArray(stored) ? stored : [];
     const seen = new Set();
     const out = [];
     base.forEach((c) => {
@@ -56282,7 +56320,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     return out;
   }
   function storeCats(list) {
-    try { window.localStorage.setItem(key("categories"), JSON.stringify(list)); } catch {}
+    return KP().wr("categories", list);
   }
   function categoryOptions(cur) {
     const n = loadCats().map((c) => c.name);
@@ -56310,10 +56348,11 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     const [os, setOs] = import_react.useState(null);
     const [name, setName] = import_react.useState("");
     const [editing, setEditing] = import_react.useState(null);
+    const lock = import_react.useRef(false);
     import_react.useEffect(() => { getProducts().then(setProducts).catch(() => setProducts([])); }, []);
     if (editing) return h(ProductEditor, { product: editing, onBack: () => setEditing(null), onSaved: (l) => { setProducts(l); setEditing(null); } });
     const list = products ?? [];
-    const persist = (n) => { storeCats(n); setCats(n); };
+    const persist = async (n) => { setCats(n); try { await storeCats(n); return true; } catch { setCats(loadCats()); return false; } };
     const reload = async () => setProducts(await getProducts());
     const cat = cats.find((c) => c.name === oc);
     const inCat = (n) => list.filter((p) => p.category === n);
@@ -56321,26 +56360,30 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     const pill = (tone, t) => h("span", { key: t, className: "rounded-full px-2 py-0.5 text-[11px] font-medium " + toneClass[tone] }, t);
     const btn = (label, fn, txt) => h(Button, { variant: "ghost", size: "icon", "aria-label": label, onClick: fn }, txt);
     const up = (fn) => persist(cats.map((c) => c.name === oc ? fn(c) : c));
-    const add = (kind) => {
+    const add = async (kind) => {
       const n = name.trim();
       if (!n) return toast.error("Type a name first");
-      if (kind === "cat") {
-        if (cats.some((c) => c.name.toLowerCase() === n.toLowerCase())) return toast.error("That category already exists");
-        persist([...cats, { id: catSlug(n) + "_" + Date.now().toString(36), shopId: currentShopId(), name: n, subs: [] }]);
-        toast.success("Category added — open it to add sub-categories");
-      } else {
-        if ((cat.subs || []).some((x) => x.name.toLowerCase() === n.toLowerCase())) return toast.error("That sub-category already exists");
-        up((c) => ({ ...c, subs: [...(c.subs || []), { id: "s" + Date.now().toString(36), name: n, rep: "" }] }));
-        toast.success("Sub-category added — open it to add products");
-      }
-      setName("");
+      if (lock.current) return;
+      lock.current = true;
+      try {
+        if (kind === "cat") {
+          if (cats.some((c) => c.name.toLowerCase() === n.toLowerCase())) return toast.error("That category already exists");
+          if (!(await persist([...cats, { id: catSlug(n) + "_" + Date.now().toString(36), shopId: currentShopId(), name: n, subs: [] }]))) return;
+          toast.success("Category added — open it to add sub-categories");
+        } else {
+          if ((cat.subs || []).some((x) => x.name.toLowerCase() === n.toLowerCase())) return toast.error("That sub-category already exists");
+          if (!(await up((c) => ({ ...c, subs: [...(c.subs || []), { id: "s" + Date.now().toString(36), name: n, rep: "" }] })))) return;
+          toast.success("Sub-category added — open it to add products");
+        }
+        setName("");
+      } finally { lock.current = false; }
     };
     const renCat = async (c) => {
       const n = (prompt("New name", c.name) || "").trim();
       if (!n || n === c.name) return;
       if (cats.some((x) => x.name.toLowerCase() === n.toLowerCase())) return toast.error("That name is already used");
       for (const p of inCat(c.name)) await saveProduct({ ...p, category: n });
-      persist(cats.map((x) => x.id === c.id ? { ...x, name: n } : x));
+      await persist(cats.map((x) => x.id === c.id ? { ...x, name: n } : x));
       await reload();
     };
     const delCat = async (c) => {
@@ -56353,13 +56396,13 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
         for (const p of mine) await saveProduct({ ...p, category: "Other", sub: "" });
         await reload();
       }
-      persist(next);
+      await persist(next);
     };
     const renSub = (sb) => { const n = (prompt("New name", sb.name) || "").trim(); if (n) up((c) => ({ ...c, subs: c.subs.map((x) => x.id === sb.id ? { ...x, name: n } : x) })); };
     const delSub = async (sb) => {
       if (!confirm("Delete " + sb.name + "? Its products stay in " + oc + " but lose this group.")) return;
       for (const p of inSub(oc, sb.id)) await saveProduct({ ...p, sub: "" });
-      up((c) => ({ ...c, subs: c.subs.filter((x) => x.id !== sb.id) }));
+      await up((c) => ({ ...c, subs: c.subs.filter((x) => x.id !== sb.id) }));
       await reload();
     };
     const feat = async (p) => { setProducts(await saveProduct({ ...p, featured: !p.featured })); toast.success(p.featured ? "Removed from home page" : "Shown on the home page"); };
@@ -83908,7 +83951,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
               label: "Description",
               render: (e) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
                 className: "block max-w-[200px] truncate",
-                children: e.description
+                children: e.description + (expProdIds(e).length ? " · " + expProdIds(e).length + (expProdIds(e).length > 1 ? " products" : " product") : "")
               })
             },
             {
@@ -83994,6 +84037,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
               type: "textarea"
             }
           ],
+          extra: (d, set) => import_react.createElement(ProductPicker, { products: data.products, value: expProdIds(d), amount: d.amount, onChange: (ids) => set({ productIds: ids, productId: ids[0] || null }) }),
           onSave: async (e) => {
             setData({
               ...data,
@@ -86122,11 +86166,6 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
                   onClick: () => logoRef.current?.click(),
                   children: config.logo ? "Change Logo" : "Upload Logo"
                 }),
-                config.logo ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-                  variant: "ghost",
-                  onClick: () => setConfig({ logo: null, favicon: null }),
-                  children: "Reset"
-                }) : null,
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
                   ref: logoRef,
                   type: "file",
@@ -86406,6 +86445,25 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
               })]
             })]
           }),
+          import_react.createElement("div", null, import_react.createElement(Label$2, { className: "mb-2 block" }, "Home page background"),
+            import_react.createElement("div", { className: "grid grid-cols-2 gap-2 sm:grid-cols-3" }, [
+              ["mist","Mist","Soft","linear-gradient(135deg,#e6defc,#d5e6ff)"],
+              ["cream","Cream","Soft","linear-gradient(135deg,#ffe9d2,#ffdfe0)"],
+              ["sky","Sky","Soft","linear-gradient(135deg,#d4ebff,#dcdfff)"],
+              ["mint","Mint","Soft","linear-gradient(135deg,#d6f5e6,#d3f1f2)"],
+              ["haze","Rose haze","Soft","linear-gradient(135deg,#ffdbea,#e8dbff)"],
+              ["pearl","Pearl","Soft","linear-gradient(135deg,#ece8e1,#e4e9ee)"],
+              ["blossom","Blossom","Girly","linear-gradient(135deg,#ffbfd8,#ff8fbf)"],
+              ["butterfly","Butterflies","Girly","linear-gradient(135deg,#e4c7ff,#f3b6ee)"],
+              ["geometry","Geometry","Serious","linear-gradient(135deg,#1e293b,#475569)"],
+              ["aurora","Aurora","Serious","linear-gradient(135deg,#0f172a,#1d4ed8 55%,#0ea5e9)"]
+            ].map((b) => import_react.createElement("button", {
+              key: b[0], type: "button",
+              "aria-label": "Use " + b[1] + " background",
+              onClick: () => setTheme({ heroBg: b[0] }),
+              className: "h-16 rounded-xl border-2 p-2 text-left text-[11px] font-semibold transition-transform hover:scale-[1.03] " + ((theme.heroBg || "mist") === b[0] ? "border-foreground" : "border-transparent"),
+              style: { background: b[3], color: b[0] === "geometry" || b[0] === "aurora" ? "#fff" : "#3b2a4a" }
+            }, b[1], import_react.createElement("div", { className: "text-[9px] font-normal opacity-80" }, b[2]))))),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
             onClick: async () => {
               await persistConfig();
@@ -86900,6 +86958,34 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
   //#endregion
 
   //#region src/components/business/MoneyPage.tsx
+  function expProdIds(e) { return Array.isArray(e.productIds) && e.productIds.length ? e.productIds : e.productId ? [e.productId] : []; }
+  function expProdNote(e, products) {
+    const ids = expProdIds(e);
+    if (!ids.length) return "";
+    const names = ids.map((id) => (products.find((x) => x.id === id) || {}).name).filter(Boolean);
+    if (!names.length) return " · for a product";
+    return " · for " + (names.length > 2 ? names.slice(0, 2).join(", ") + " +" + (names.length - 2) + " more" : names.join(", "));
+  }
+  function ProductPicker({ products, value, onChange, amount }) {
+    const h = import_react.createElement;
+    const [q, setQ] = import_react.useState("");
+    const ids = Array.isArray(value) ? value : [];
+    const all = products || [];
+    const list = all.filter((p) => !q.trim() || String(p.name).toLowerCase().includes(q.trim().toLowerCase()));
+    const toggle = (id) => onChange(ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
+    const sel = () => onChange([...new Set([...ids, ...list.map((p) => p.id)])]);
+    const bs = { fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 8, border: "1px solid rgba(128,128,128,.4)", background: "transparent", color: "inherit", cursor: "pointer" };
+    const amt = Number(amount) || 0;
+    const hint = ids.length === 0 ? "No product selected: this is a general shop cost." : ids.length > 1 && amt > 0 ? "Shared equally: about " + Math.round(amt / ids.length).toLocaleString() + " for each of the " + ids.length + " products." : ids.length + " product selected.";
+    return h("div", { style: { display: "grid", gap: 8, width: "100%" } },
+      h("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" } },
+        h("span", { style: { fontSize: 14, fontWeight: 600 } }, "Related products (optional)" + (ids.length ? " · " + ids.length : "")),
+        h("span", { style: { display: "flex", gap: 6 } }, h("button", { type: "button", onClick: sel, style: bs }, q.trim() ? "Select shown" : "Select all"), h("button", { type: "button", onClick: () => onChange([]), style: bs }, "Clear"))),
+      all.length > 6 ? h("input", { value: q, onChange: (e) => setQ(e.target.value), placeholder: "Search products…", "aria-label": "Search products", style: { height: 38, borderRadius: 10, border: "1px solid rgba(128,128,128,.4)", background: "transparent", color: "inherit", padding: "0 10px", fontSize: 14 } }) : null,
+      h("div", { style: { maxHeight: 176, overflowY: "auto", border: "1px solid rgba(128,128,128,.35)", borderRadius: 12, padding: 4 } },
+        list.length ? list.map((p) => { const on = ids.includes(p.id); return h("label", { key: p.id, style: { display: "flex", alignItems: "center", gap: 10, padding: "8px 8px", borderRadius: 8, cursor: "pointer", fontSize: 14, background: on ? "rgba(128,128,128,.16)" : "transparent" } }, h("input", { type: "checkbox", checked: on, onChange: () => toggle(p.id), style: { width: 18, height: 18, accentColor: "var(--brand, #5b9e22)", flexShrink: 0 } }), h("span", { style: { minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, p.name)); }) : h("p", { style: { padding: 10, fontSize: 13, opacity: .7 } }, all.length ? "No product matches." : "No products yet.")),
+      h("p", { style: { fontSize: 12, opacity: .7, margin: 0 } }, hint));
+  }
   function MoneyPage() {
     const h = import_react.createElement;
     const money = useMoney();
@@ -86907,7 +86993,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     const [per, setPer] = import_react.useState("month");
     const [what, setWhat] = import_react.useState("");
     const [amt, setAmt] = import_react.useState("");
-    const [prod, setProd] = import_react.useState("");
+    const [prod, setProd] = import_react.useState([]);
     const [cf, setCf] = import_react.useState("");
     const [ct, setCt] = import_react.useState("");
     if (error) return h(ErrorState, { message: error, onRetry: reload });
@@ -86919,7 +87005,7 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     const sales = data.orders.filter((o) => countsAsSale(o) && inRange(o.date, rg[0], rg[1]));
     const by = {};
     sales.forEach((o) => { const p = data.products.find((x) => x.id === o.productId), k = p ? p.name : o.item; by[k] = by[k] || { n: k, q: 0, in: 0, pr: 0 }; by[k].q += o.quantity || 1; by[k].in += o.amount; by[k].pr += o.amount - orderCost(o, data.products); });
-    data.expenses.filter((e) => e.productId && inRange(e.date, rg[0], rg[1])).forEach((e) => { const p = data.products.find((x) => x.id === e.productId); if (!p) return; by[p.name] = by[p.name] || { n: p.name, q: 0, in: 0, pr: 0 }; by[p.name].pr -= e.amount; });
+    data.expenses.filter((e) => expProdIds(e).length && inRange(e.date, rg[0], rg[1])).forEach((e) => { const ps = expProdIds(e).map((id) => data.products.find((x) => x.id === id)).filter(Boolean); ps.forEach((p) => { by[p.name] = by[p.name] || { n: p.name, q: 0, in: 0, pr: 0 }; by[p.name].pr -= e.amount / ps.length; }); });
     const top = Object.values(by).sort((a, b) => b.pr - a.pr).slice(0, 5);
     const bestSold = Object.values(by).filter((t) => t.q > 0).sort((a, b) => b.q - a.q).slice(0, 5);
     const notSold = data.products.filter((p) => (p.sale || (p.stock > 0 ? "available" : "sold")) === "available" && (!by[p.name] || by[p.name].q === 0)).slice(0, 8);
@@ -86929,8 +87015,8 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
     const addExp = async () => {
       const a = Number(amt);
       if (!what.trim() || !(a > 0)) return toast.error("Write what it was for and how much");
-      await saveExpense({ id: newId("e"), shopId: currentShopId(), date: T, title: what.trim(), category: "Other", amount: a, notes: "", productId: prod || null });
-      setWhat(""); setAmt(""); setProd(""); reload(); toast.success("Expense saved");
+      await saveExpense({ id: newId("e"), shopId: currentShopId(), date: T, title: what.trim(), category: "Other", amount: a, notes: "", productIds: prod, productId: prod[0] || null });
+      setWhat(""); setAmt(""); setProd([]); reload(); toast.success("Expense saved");
     };
     const per2 = [["today", "Today"], ["week", "This week"], ["month", "This month"], ["year", "This year"], ["all", "Everything"], ["custom", "Choose dates"]];
     return h("section", { className: "space-y-4" },
@@ -86953,8 +87039,8 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
         h("p", { className: "pt-2 font-semibold" }, "Not selling in this time"),
         notSold.length ? notSold.map((p) => h("div", { key: p.id, className: "text-sm" }, p.name)) : h("p", { className: "text-sm text-muted-foreground" }, "Everything available has sold.")),
       h(GlassCard, { className: "space-y-3 p-4" }, h("p", { className: "font-semibold" }, "Write down an expense"),
-        h("div", { className: "flex flex-col gap-2 sm:flex-row" }, h(Input, { value: what, onChange: (e) => setWhat(e.target.value), placeholder: "What was it for? (e.g. Transport)", "aria-label": "What for" }), h(Input, { value: amt, onChange: (e) => setAmt(e.target.value), type: "number", placeholder: "How much?", "aria-label": "Amount" }), h("select", { value: prod, onChange: (e) => setProd(e.target.value), "aria-label": "Product", className: "h-10 rounded-md border border-border bg-background px-2 text-sm" }, h("option", { value: "" }, "For no product (shop cost)"), data.products.map((p) => h("option", { key: p.id, value: p.id }, p.name))), h(Button, { onClick: addExp, className: "shrink-0" }, "Save expense")),
-        exps.length ? exps.map((e) => h("div", { key: e.id, className: "flex items-center justify-between gap-2 border-t border-border/50 pt-2 text-sm" }, h("span", { className: "min-w-0 flex-1 truncate" }, (e.title || e.label || e.description || e.name || e.category) + " · " + String(e.date).slice(0, 10) + (e.productId ? " · for " + ((data.products.find((x) => x.id === e.productId) || {}).name || "a product") : "")), h("b", null, money(e.amount)), h(Button, { variant: "ghost", size: "icon", "aria-label": "Delete expense", onClick: async () => { await deleteExpense(e.id); reload(); } }, h(Trash2, { className: "h-4 w-4 text-destructive", "aria-hidden": true })))) : h("p", { className: "text-sm text-muted-foreground" }, "No expenses in this time.")));
+        h("div", { className: "flex flex-col gap-2 sm:flex-row" }, h(Input, { value: what, onChange: (e) => setWhat(e.target.value), placeholder: "What was it for? (e.g. Transport)", "aria-label": "What for" }), h(Input, { value: amt, onChange: (e) => setAmt(e.target.value), type: "number", placeholder: "How much?", "aria-label": "Amount" })), h(ProductPicker, { products: data.products, value: prod, onChange: setProd, amount: amt }), h(Button, { onClick: addExp, className: "w-full sm:w-auto" }, "Save expense"),
+        exps.length ? exps.map((e) => h("div", { key: e.id, className: "flex items-center justify-between gap-2 border-t border-border/50 pt-2 text-sm" }, h("span", { className: "min-w-0 flex-1 truncate" }, (e.title || e.label || e.description || e.name || e.category) + " · " + String(e.date).slice(0, 10) + expProdNote(e, data.products)), h("b", null, money(e.amount)), h(Button, { variant: "ghost", size: "icon", "aria-label": "Delete expense", onClick: async () => { await deleteExpense(e.id); reload(); } }, h(Trash2, { className: "h-4 w-4 text-destructive", "aria-hidden": true })))) : h("p", { className: "text-sm text-muted-foreground" }, "No expenses in this time.")));
   }
   //#endregion
 
@@ -87084,12 +87170,26 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
       })).catch(() => setError("We couldn't load your dashboard."));
     }, []);
     import_react.useEffect(load, [load]);
+    import_react.useEffect(() => {
+      let alive = true, t = 0;
+      const quiet = () => {
+        clearTimeout(t);
+        t = setTimeout(() => {
+          Promise.all([getProducts(), getOrders(), getCustomers(), getActivity()]).then(([products, orders, customers, activity]) => {
+            if (alive) setData({ products, orders, customers, activity });
+          }).catch(() => {});
+        }, 300);
+      };
+      if (window.KDB) window.KDB.on(quiet);
+      window.addEventListener("kal-refresh", quiet);
+      return () => { alive = false; clearTimeout(t); window.removeEventListener("kal-refresh", quiet); };
+    }, []);
     if (error) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ErrorState, {
       message: error,
       onRetry: load
     });
     if (!data) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoadingState, { label: "Loading your shop…" });
-    const lowStock = data.products.filter((p) => p.sale === "reserved").length;
+    const lowStock = data.products.filter(isReservedItem).length;
     const totalSales = data.orders.reduce((sum, o) => sum + o.amount, 0);
     const tiles = [
       {
@@ -87129,8 +87229,8 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
           })]
         }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
           className: "space-y-1",
-          children: data.activity.map((a) => {
-            const Icon = activityIcon[a.kind];
+          children: (data.activity.length ? data.activity : [{ id: "_empty", kind: "empty", text: "Nothing yet", time: "", isNew: false }]).map((a) => {
+            const Icon = activityIcon[a.kind] || Bell;
             return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
               onClick: () => a.kind === "order" ? onJump("business", "Orders") : a.kind === "stock" ? onJump("business", "Products") : onJump("business", "Customers"),
               className: "flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-accent",
@@ -87146,6 +87246,10 @@ body{padding-top:44px!important}.h-screen{height:calc(100vh - 44px)!important}.m
                   className: "min-w-0 flex-1 truncate text-sm",
                   children: a.text
                 }),
+                a.isNew ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+                  style: { background: "#2f6f12", color: "#fff", borderRadius: "9999px", padding: "1px 7px", fontSize: "10px", fontWeight: 700, letterSpacing: ".03em" },
+                  children: "NEW"
+                }) : null,
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
                   className: "shrink-0 text-xs text-muted-foreground",
                   children: a.time

@@ -1,0 +1,9 @@
+{
+  "name": "kalimat",
+  "private": true,
+  "description": "KALIMAT storefront + admin (static site on Netlify, backend on Supabase). No build step.",
+  "scripts": {
+    "test": "node --test \"tests/unit/*.test.js\"",
+    "check": "node --check assets/js/kdb.js && node --check assets/js/store.js && node --check assets/js/pwa.js && node --check assets/js/push.js && node --check sw.js && node --check config.js"
+  }
+}

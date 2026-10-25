@@ -1,0 +1,80 @@
+{
+ "shopId": "kalimat",
+ "platformName": "KALIMAT",
+ "logo": "/logo.png",
+ "favicon": "/favicon-32.png",
+ "description": "",
+ "theme": {
+  "accent": "#4f8f1f",
+  "gradientFrom": "#5b9e22",
+  "gradientTo": "#3d7a15",
+  "mode": "light",
+  "font": "Inter",
+  "preset": "Custom"
+ },
+ "socialLinks": [
+  {
+   "platform": "instagram",
+   "enabled": false,
+   "username": ""
+  },
+  {
+   "platform": "tiktok",
+   "enabled": false,
+   "username": ""
+  },
+  {
+   "platform": "whatsapp",
+   "enabled": false,
+   "username": ""
+  },
+  {
+   "platform": "facebook",
+   "enabled": false,
+   "username": ""
+  },
+  {
+   "platform": "youtube",
+   "enabled": false,
+   "username": ""
+  },
+  {
+   "platform": "x",
+   "enabled": false,
+   "username": ""
+  },
+  {
+   "platform": "linkedin",
+   "enabled": false,
+   "username": ""
+  }
+ ],
+ "orderMode": "dashboard",
+ "whatsappNumber": "",
+ "general": {
+  "email": "",
+  "phone": "",
+  "address": "",
+  "currency": "RWF",
+  "language": "English"
+ },
+ "content": {
+  "bannerImage": null,
+  "headline": "",
+  "showFeatured": true,
+  "videos": []
+ },
+ "social": {
+  "openInNewTab": true,
+  "showFollowUs": true,
+  "order": [
+   "instagram",
+   "tiktok",
+   "whatsapp",
+   "facebook",
+   "youtube",
+   "x",
+   "linkedin"
+  ]
+ }
+}
