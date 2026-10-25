@@ -13,15 +13,15 @@ No L-level verification has been done: the deployed site and real phones were no
 | Catalog: products create/edit/delete via admin UI | WORKING WITH LIMITATIONS | U (data layer), B (checkout) | Product *form* UI (image upload/replace, edit) not driven by a browser test yet. |
 | Branding startup (no old scheme first) | FIXED, VERIFIED | B | BUG-009. Old code painted `#d946ef` in 69 frames. |
 | Brand reset button | REMOVED, VERIFIED | B | BUG-008 (logo+favicon "Reset"). Theme presets/palette remain as normal editing controls. |
-| Default slogan "Shop Smarter, Live Better" | REMOVED, VERIFIED | B | BUG-010. A configured headline still shows. |
+| Default slogan "Shop Smarter, Live Better" | KEPT BY OWNER DECISION | B | Static branding; a configured headline replaces it. |
 | Product image full view | IMPLEMENTED, VERIFIED | B | BUG-011. Portrait/landscape/square, phone + desktop. |
 | Reports date boundaries | FIXED, VERIFIED | U | BUG-006 (Kigali days). "One row" defect: NOT REPRODUCED (see registry). |
 | Reports vs real data (each report documented) | NOT VERIFIED | — | Only date logic tested. See OPEN-006. |
 | PWA install (storefront/admin) | WORKING WITH LIMITATIONS | S, review | `pwa.js` has native prompt + per-platform manual steps. Not tested on real iOS/Android. |
 | Push notifications | NOT VERIFIED | D (trigger exists, webhook 200s) | No subscriptions exist yet. |
-| Customer login / logout / profile | BROKEN (not real auth) | code review | Local flag in `localStorage`. OPEN-001. |
+| Customer login / logout / profile (username + phone) | VERIFIED WORKING | B, D | BUG-013/014. Known limits listed in the registry. |
 | Developer role + two-finger gesture + authenticator | NOT IMPLEMENTED | — | OPEN-002. |
-| Hero background images | PREMISE DOES NOT MATCH CODE | code review | OPEN-005. |
+| Hero backgrounds | VERIFIED WORKING | B | 10 CSS-built options, selectable in Branding; floating shapes removed (BUG-016). |
 | Tutorial video upload | BROKEN (device-local) | code review | OPEN-003. |
 
 ## Must not regress

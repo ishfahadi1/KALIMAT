@@ -13,7 +13,7 @@ function setSess(s){try{s?localStorage.setItem(SK,JSON.stringify(s)):localStorag
 function mk(d,email){return{at:d.access_token,rt:d.refresh_token,exp:d.expires_at||Math.floor(Date.now()/1000)+(d.expires_in||3600),email:email}}
 /* ---- errors: every failure becomes a clear message for the person; nothing is swallowed ---- */
 var errSubs=[],again=false;
-function KErr(code,msg){var e=new Error(msg);e.code=code;return e}
+function KErr(code,msg,detail){var e=new Error(msg);e.code=code;e.detail=detail||"";return e}
 function say(m){console.error("[kdb]",m);if(errSubs.length)errSubs.forEach(function(f){try{f(m)}catch(x){}});else try{window.toast&&window.toast(m)}catch(x){}}
 async function token(){var s=sess();if(!s)return null;if(s.exp-60<Date.now()/1000){try{var r=await fetch(H+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{apikey:A,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:s.rt})});var d=await r.json();if(!r.ok)throw 0;s=mk(d,s.email);setSess(s)}catch(e){setSess(null);return null}}return s.at}
 async function api(p,o){o=o||{};var t=await token(),h=Object.assign({apikey:A,Authorization:"Bearer "+(t||A),"Content-Type":"application/json"},o.headers||{}),r;
@@ -22,7 +22,7 @@ if(!r.ok){var m="";try{var b=JSON.parse(await r.text());m=b.message||b.msg||""}c
 if(r.status===401||r.status===403)throw KErr("auth","Your session has expired or you do not have permission. Please sign in again.");
 if(r.status===409)throw KErr("conflict","That record already exists.");
 if(r.status>=500)throw KErr("server","The server had a problem. Your change was not saved. Please try again.");
-throw KErr("rejected","The server rejected the change"+(m?": "+m:"")+".")}
+throw KErr("rejected","The server rejected the change"+(m?": "+m:"")+".",m)}
 var x=await r.text();return x?JSON.parse(x):null}
 /* read every page: the API returns at most 1000 rows per request */
 async function pages(path,o){var out=[],step=1000;for(var off=0;;off+=step){var pg=await api(path+(path.indexOf("?")<0?"?":"&")+"limit="+step+"&offset="+off,o);if(!pg||!pg.length)break;out=out.concat(pg);if(pg.length<step)break}return out}
@@ -67,5 +67,7 @@ function rpc(fn,args){var p=chain.then(function(){return api("/rest/v1/rpc/"+fn,
 if(!ok())console.warn("[kdb] config.js is empty: add SUPABASE_URL, SUPABASE_ANON_KEY and SHOP_ID.");
 var ready=load().then(function(){loaded=true;emit()});
 setInterval(load,20000);document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
-window.KDB={onError:function(f){errSubs.push(f)},token:token,rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll,login:login,rpc:rpc,load:load,ready:ready,session:function(){var s=sess();return s?s.email:null},signOut:function(){setSess(null);load()},get loaded(){return loaded}};
+/* call a database function and return its result (used for customer accounts) */
+async function call(fn,args){return api("/rest/v1/rpc/"+fn,{method:"POST",body:JSON.stringify(args)})}
+window.KDB={call:call,onError:function(f){errSubs.push(f)},token:token,rd:rd,wr:wr,on:function(f){subs.push(f)},status:status,enroll:enroll,login:login,rpc:rpc,load:load,ready:ready,session:function(){var s=sess();return s?s.email:null},signOut:function(){setSess(null);load()},get loaded(){return loaded}};
 })();

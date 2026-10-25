@@ -92,6 +92,59 @@ def t_shopper_checkout_places_order_and_reserves_product(br):
     assert any(e[0] == 'rpc' and e[1] == 'reserve_product' for e in be.log), f'reserve_product not called; log={be.log}'
     order_idx = next(i for i, e in enumerate(be.log) if e[0] == 'write' and e[1] == 'orders'); rpc_idx = next(i for i, e in enumerate(be.log) if e[0] == 'rpc')
     assert order_idx < rpc_idx, 'the reservation must come AFTER the order is stored (migration 003 requires the order to exist)'
+# ---------------- customer accounts: username + phone, same orders/requests on every device ----------------
+def _create_account(pg, name='Alice A', user='alice', phone='0788111222', addr='Kigali'):
+    pg.goto(ORIGIN + '/#/profile'); pg.wait_for_selector('#pn'); pg.wait_for_timeout(700)
+    pg.fill('#pn', name); pg.fill('#pu', user); pg.fill('#pp', phone); pg.fill('#pa', addr); pg.click('#pb'); pg.wait_for_timeout(1200)
+def toast_text(pg): return pg.evaluate("document.getElementById('ty').textContent")
+def _stored_user(pg): return pg.evaluate("JSON.parse(localStorage.getItem('kal.store.user')||'null')")
+def _sign_in(pg, user, phone):
+    pg.goto(ORIGIN + '/#/profile'); pg.wait_for_selector('#lu'); pg.wait_for_timeout(700); pg.fill('#lu', user); pg.fill('#lp', phone); pg.click('#lb'); pg.wait_for_timeout(1500)
+def t_account_follows_customer_across_devices(br):
+    """Order + request on a PC; sign in with username + phone on a phone: the same orders and requests appear (and a quote can be accepted)."""
+    be = Backend(); pc = page(br.new_context(viewport={'width': 1280, 'height': 800}, service_workers='block'), be); _create_account(pc)
+    u = _stored_user(pc); assert u and u['username'] == 'alice', f'not signed in after creating the account: {u}'
+    pc.goto(ORIGIN + '/#/shop'); pc.wait_for_selector('#ag .pc', timeout=8000); pc.wait_for_timeout(500)
+    pc.evaluate("pickp('p2')"); pc.evaluate("(function(){var f=function(i,v){var e=document.getElementById(i);if(e)e.value=v};f('fn','Alice A');f('fp','0788111222');f('fa','Kigali')})()"); pc.evaluate("checkout()"); pc.wait_for_timeout(1500)
+    order = be.coll('orders'); assert order and order[0]['customerId'] == u['id'], f'order not linked to the account: {order}'
+    pc.evaluate("(function(){document.getElementById('dI').value='Blue kitenge dress';document.getElementById('dQ').value=2;sendDemand()})()"); pc.wait_for_timeout(1500)
+    dem = be.coll('customerDemands'); assert dem and dem[0]['customerId'] == u['id'], f'request not linked: {dem}'
+    be.rows[('customerDemands', dem[0]['id'])]['status'] = 'quoted'; be.rows[('customerDemands', dem[0]['id'])]['quotePrice'] = 30000   # the shop answers the request
+    phone = page(ctx(br), be); _sign_in(phone, 'ALICE', '+250 788 111 222')           # other device, username and phone typed differently
+    t = text(phone); assert 'Welcome back' in t or 'My Orders' in t, 'not signed in on the second device'
+    assert order[0]['number'] in t, 'the PC order is missing on the phone'
+    assert 'Blue kitenge dress' in t, 'the PC request is missing on the phone'
+    phone.get_by_role('button', name='Accept quote').click(); phone.wait_for_timeout(1200)
+    assert be.rows[('customerDemands', dem[0]['id'])]['status'] == 'accepted', 'accepting the quote did not reach the database'
+def t_wrong_details_cannot_sign_in_and_phone_locks(br):
+    """Wrong username/phone never signs in or shows anyone's data; repeated wrong tries lock the phone for 15 minutes."""
+    be = Backend(); a = page(ctx(br), be); _create_account(a)
+    b = page(ctx(br), be); _sign_in(b, 'alice', '0788999999'); assert _stored_user(b) is None, 'signed in with a wrong phone'; assert 'No account matches' in text(b)
+    for i in range(9): b.fill('#lu', f'guess{i}'); b.fill('#lp', '0788111222'); b.click('#lb'); b.wait_for_timeout(250)
+    b.fill('#lu', 'alice'); b.fill('#lp', '0788111222'); b.click('#lb'); b.wait_for_timeout(900)
+    assert _stored_user(b) is None and '15 minutes' in toast_text(b), f'phone not locked after repeated wrong tries: {toast_text(b)!r}'
+def t_logout_really_logs_out(br):
+    """(was broken: logout cleared the wrong storage key, so the customer stayed signed in)."""
+    be = Backend(); pg = page(ctx(br), be); _create_account(pg); assert _stored_user(pg); pg.reload(); pg.wait_for_timeout(1200); assert _stored_user(pg), 'session lost on refresh'
+    pg.goto(ORIGIN + '/#/profile'); pg.wait_for_selector('#po', state='visible'); pg.click('#po'); pg.wait_for_timeout(600)
+    assert _stored_user(pg) is None, 'still stored after logout'; pg.reload(); pg.wait_for_timeout(1200); pg.goto(ORIGIN + '/#/profile'); pg.wait_for_timeout(800)
+    assert _stored_user(pg) is None and pg.locator('#sg').is_visible() and 'My Orders' not in text(pg), 'signed-in view still shown after logout and refresh'
+def t_checkout_save_details_creates_account_and_username(br):
+    """Ticking 'save my details' at checkout creates a real account first, links the order, and tells the customer the username."""
+    be = Backend(); pg = page(ctx(br), be); pg.goto(ORIGIN + '/#/shop'); pg.wait_for_selector('#ag .pc', timeout=8000); pg.wait_for_timeout(500)
+    pg.evaluate("pickp('p1')"); pg.evaluate("(function(){var f=function(i,v){var e=document.getElementById(i);if(e)e.value=v};f('fn','Test Shopper');f('fp','0788222333');f('fa','Kigali');var c=document.getElementById('sc');if(c)c.checked=true})()")
+    pg.evaluate("checkout()"); pg.wait_for_timeout(1800); u = _stored_user(pg)
+    assert u and u['username'].startswith('testshopper'), f'no account created: {u}'
+    assert be.coll('orders') and be.coll('orders')[0]['customerId'] == u['id'], 'order not linked to the new account'
+    assert '@' + u['username'] in toast_text(pg), f'the customer was not told their username: {toast_text(pg)!r}'
+def t_guest_request_does_not_create_an_account(br):
+    """A visitor without an account can still send a request; it never becomes a login."""
+    be = Backend(); pg = page(ctx(br), be); pg.goto(ORIGIN + '/'); pg.wait_for_selector('#dI', state='attached', timeout=8000); pg.wait_for_timeout(600)
+    pg.evaluate("(function(){var f=function(i,v){document.getElementById(i).value=v};f('dI','Wedding gift basket');f('dN','Guest G');f('dP','0788666777');sendDemand()})()"); pg.wait_for_timeout(1500)
+    d = be.coll('customerDemands'); assert d and d[0]['customerId'], 'request not stored'
+    assert not any(v.get('username') for (c, i), v in be.rows.items() if c == 'customers'), 'a guest request created an account'
+    assert _stored_user(pg) is None
+
 TESTS = [v for k, v in sorted(globals().items()) if k.startswith('t_')]
 if __name__ == '__main__':
     only = os.environ.get('ONLY'); fails = 0

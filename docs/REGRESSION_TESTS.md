@@ -21,5 +21,12 @@ The browser tests run the **real** app in Chromium and fake only Supabase and Cl
 | `t_failed_category_save_is_not_reported_as_success` | no false success |
 | `t_product_image_viewer_…` | full, undistorted image; Esc/close/next |
 | `t_shopper_checkout_places_order_and_reserves_product` | order stored **before** reservation |
+| `t_slogan_kept_and_headline_override` | slogan stays by default, headline overrides |
+| `t_hero_has_no_floating_shapes_but_keeps_backgrounds` | no shapes/animation; 10 backgrounds work |
+| `t_account_follows_customer_across_devices` | username+phone brings the same orders/requests on another device; quote can be accepted |
+| `t_wrong_details_cannot_sign_in_and_phone_locks` | wrong details refused; lockout |
+| `t_logout_really_logs_out` | logout works and survives refresh |
+| `t_checkout_save_details_creates_account_and_username` | account created before order; username shown |
+| `t_guest_request_does_not_create_an_account` | guests can request without becoming logins |
 
-Last run: unit 16/16, browser 8/8 (this branch). On commit 900f68c the new defect tests fail (unit: 7 of 11 data-layer, 2 of 5 report; browser: 6 of 6).
+Last run: unit 17/17, browser 14/14 (this branch). Database functions of migration 005 were also tested on the live database (19 checks, rolled back); the SQL is not covered by the repo's automated tests — rerun that script after any change to it.

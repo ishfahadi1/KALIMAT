@@ -110,3 +110,15 @@ test('REGRESSION storefront never gets cost price (reads the public view only)',
   await KDB.ready;
   assert.ok(KDB.rd('products', []).length === 1);
 });
+
+test('call() returns a database function result and exposes the server error code for the screen to translate', async () => {
+  const be = makeBackend(); const orig = be.fetch;
+  be.fetch = async (u, o) => (String(u).includes('/rpc/customer_login')
+    ? (JSON.parse(o.body).p_username === 'locked'
+        ? { ok: false, status: 400, text: async () => JSON.stringify({ message: 'locked' }), json: async () => ({}) }
+        : { ok: true, status: 200, text: async () => JSON.stringify({ customer: { id: 'c1' } }), json: async () => ({}) })
+    : orig(u, o));
+  const { KDB } = loadKdb(be, { path: '/', session: null }); await KDB.ready;
+  assert.equal((await KDB.call('customer_login', { p_username: 'ok' })).customer.id, 'c1');
+  await assert.rejects(KDB.call('customer_login', { p_username: 'locked' }), (e) => e.detail === 'locked');
+});
